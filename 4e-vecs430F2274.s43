@@ -1,0 +1,94 @@
+; ----------------------------------------------------------------------
+; 4e4th is a Forth based on CamelForth 
+; for the Texas Instruments MSP430 
+; 
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+; 
+; See LICENSE TERMS in Brads file readme.txt as well.
+
+; ----------------------------------------------------------------------
+; 4e-vecs430F2274.s43: Interrupt Vectors - MSP430F2274
+; ----------------------------------------------------------------------
+PUBLIC intseg,intvecs
+
+        RSEG    INTSEG
+intseg:        DW 0x1122 ; test Kennung, kann weg. mk
+
+; Interrupt vectors are located in the range FFC0-FFFFh. mk laut slau144i
+; $fffe $ffc0 - . 62  ok  31 vectoren mk
+
+        RSEG    INTVEC
+        EXTERN isr_null
+
+intvecs:             ; priorität ; Bedeutung
+/*      DC16 isr_null ; 0         ;  not implemented in device
+        DC16 isr_null ; 1         ;
+        DC16 isr_null ; 2         ;
+        DC16 isr_null ; 3         ;
+        DC16 isr_null ; 4         ;
+        DC16 isr_null ; 5         ;
+        DC16 isr_null ; 6         ;
+        DC16 isr_null ; 7         ;
+        DC16 isr_null ; 8         ;
+        DC16 isr_null ; 9         ;
+        DC16 isr_null ; 10         ;
+        DC16 isr_null ; 11         ;
+        DC16 isr_null ; 12         ;
+        DC16 isr_null ; 13         ;
+        DC16 isr_null ; 14         ;
+        DC16 isr_null ; 15         ; */
+        
+        ; Range FFE0-FFFF          ; 
+        DC16 isr_null ; 16         ;    nc
+        DC16 isr_null ; 17         ;    nc
+        DC16 isr_null ; 18         ;    P1IFG.0..7
+        DC16 isr_null ; 19         ;    P2IFG.0..7
+        DC16 isr_null ; 20         ;    nc
+        DC16 isr_null ; 21         ;    ADC10IFG
+        DC16 isr_null ; 22         ;    UCA0TXIFG, UCB0TXIFG
+        DC16 isr_null ; 23         ;    UCA0RXIFG, UCB0RXIFG
+        DC16 isr_null ; 24         ;    TA0CCR2 TAOCCR1 CCIFG, TAIFG
+        DC16 isr_null ; 25         ;    TA0CCR0 CCIFG
+        DC16 isr_null ; 26         ;    WDTIFG
+        DC16 isr_null ; 27         ;    CAIFG
+        DC16 isr_null ; 28         ;    TA1CCR2 TA1CCR1 CCIFG, TAIFG
+        DC16 isr_null ; 29         ;    TA1CCR0 CCIFG
+        DC16 isr_null ; 30         ;    NMIIFG, OFIFG, ACCVIIFG (non-maskable)
+
+        RSEG    RESET
+        PUBLIC resetvec
+        EXTERN reset
+
+resetvec:        DC16 reset   ; 31         ; power up ... (non-maskable)
+
+        END
+
+/************************************************************
+* Interrupt Vectors (offset from 0xFFE0)
+
+#define PORT1_VECTOR        (2 * 2u)  0xFFE4 Port 1 
+#define PORT2_VECTOR        (3 * 2u)  0xFFE6 Port 2 
+#define ADC10_VECTOR        (5 * 2u)  0xFFEA ADC10 
+#define USCIAB0TX_VECTOR    (6 * 2u)  0xFFEC USCI A0/B0 Transmit 
+#define USCIAB0RX_VECTOR    (7 * 2u)  0xFFEE USCI A0/B0 Receive 
+#define TIMER0_A1_VECTOR    (8 * 2u)  0xFFF0 Timer0)A CC1, TA0 
+#define TIMER0_A0_VECTOR    (9 * 2u)  0xFFF2 Timer0_A CC0 
+#define WDT_VECTOR          (10 * 2u) 0xFFF4 Watchdog Timer 
+#define COMPARATORA_VECTOR  (11 * 2u) 0xFFF6 Comparator A 
+#define TIMER1_A1_VECTOR    (12 * 2u) 0xFFF8 Timer1_A CC1-4, TA1 
+#define TIMER1_A0_VECTOR    (13 * 2u) 0xFFFA Timer1_A CC0 
+#define NMI_VECTOR          (14 * 2u) 0xFFFC Non-maskable 
+#define RESET_VECTOR        (15 * 2u) 0xFFFE Reset [Highest Priority] 
+
+************************************************************/

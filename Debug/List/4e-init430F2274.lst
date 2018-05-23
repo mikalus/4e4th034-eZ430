@@ -1,0 +1,348 @@
+###############################################################################
+#                                                                             #
+#     IAR Assembler V6.30.1.934/W32  for MSP430 23/May/2018  06:18:04         #
+#     Copyright 1996-2015 IAR Systems AB.                                     #
+#                                                                             #
+#           Target option =  MSP430                                           #
+#           Source file   =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\4e-init430F2274.s43#
+#           List file     =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\List\4e-init430F2274.lst#
+#           Object file   =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\Obj\4e-init430F2274.r43#
+#           Command line  =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\4e-init430F2274.s43 #
+#                            -OC:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\Obj\ #
+#                            -s+ -M<> -w+                                     #
+#                            -LC:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\List\ #
+#                            -t8 -r -D__MSP430F2274__                         #
+#                            -IC:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\430\INC\ #
+#                                                                             #
+###############################################################################
+
+      1    000000              ; ----------------------------------------------
+                               ------------------------
+      2    000000              ; 4e4th is a Forth based on CamelForth
+                                
+      3    000000              ; for the Texas Instruments MSP430 
+      4    000000              ; 
+      5    000000              ; This program is free software; you can
+                                redistribute it and/or modify
+      6    000000              ; it under the terms of the GNU General Public
+                                License as published by
+      7    000000              ; the Free Software Foundation; either version 3
+                                of the License, or
+      8    000000              ; (at your option) any later version.
+      9    000000              ; 
+     10    000000              ; This program is distributed in the hope that
+                                it will be useful,
+     11    000000              ; but WITHOUT ANY WARRANTY; without even the
+                                implied warranty of
+     12    000000              ; MERCHANTABILITY or FITNESS FOR A PARTICULAR
+                                PURPOSE.  See the
+     13    000000              ; GNU General Public License for more details.
+     14    000000              ;
+     15    000000              ; You should have received a copy of the GNU
+                                General Public License
+     16    000000              ; along with this program.  If not, see
+                                <http://www.gnu.org/licenses/>.
+     17    000000              ; 
+     18    000000              ; See LICENSE TERMS in Brads file readme.txt as
+                                well.
+     19    000000              
+     20    000000              ; ----------------------------------------------
+                               ------------------------
+     21    000000              ; 4e-init430F2274.s43 - reset interupt service
+                                routine - MSP430F2274
+     22    000000              ;  eZ430-RF2500T Target Board
+     23    000000              ; ----------------------------------------------
+                               ------------------------
+     24    000000              
+     25    000000              ; CamelForth RAM memory map:
+     26    000000              ;   UP          User Pointer, 2 bytes
+     27    000000              ;   UAREA       User area, 32 bytes
+     28    000000              ;   UAREA+20h   HOLD area, 40 bytes, grows down
+                                from end
+     29    000000              ;   UAREA+48h   PAD buffer, 88 bytes, must
+                                follow HOLD area
+     30    000000              ;   UAREA+A0h   Parameter stack, 128 B, grows
+                                down from end
+     31    000000              ;   UAREA+120h  Return stack, 128 B, grows down
+                                from end
+     32    000000              ;   UAREA+1A0h  TIB Terminal Input Buffer, 88
+                                bytes
+     33    000000              
+     34    000000              ; Note all must be word-aligned.
+     35    000000              ; See also the definitions of U0, S0, and R0 in
+                                the "system variables &
+     36    000000              ; constants" area.  A task w/o terminal input
+                                requires 200h bytes.
+     37    000000              ; Double all except TIB and PAD for 32-bit
+                                CPUs.
+     38    000000              
+     39    000000              
+     40    000000              ; RAM map
+     41    000000              ; name     celles  comment
+     42    000000                                 ; -----
+     43    000000              ;UAREA_SIZE  = 16   ; UAREA 
+     44    000012              UAREA_SIZE  = 18   ; UAREA 
+     45    000000                                 ; -----
+     46    000000                                 ; | LSTACK: leave stack
+                                
+     47    000000                                 ; | grows up 
+     48    000000                                 ; | 
+     49    000000                                 ; V
+     50    000000                                 ;   
+     51    000000                                 ; ^
+     52    000000                                 ; |
+     53    000000                                 ; | grows down
+     54    000036              PSTACK_SIZE = 54   ; | PSTACK: top of parameter
+                                stack area. 
+     55    000000                                 ; -----
+     56    000000                                 ;   
+     57    000000                                 ; ^
+     58    000000                                 ; |
+     59    000000                                 ; | grows down
+     60    000036              RSTACK_SIZE = 54   ; | RSTACK: top of return
+                                stack area. 
+     61    000000              
+     62    000000              ;          aligned buffers only required for
+                                terminal tasks.
+     63    000000              ; names    bytes  
+     64    000000                                 ; ^
+     65    000000                                 ; |
+     66    000000                                 ; | grows down
+     67    000022              HOLD_SIZE   = 34   ; | HOLDAREA: 
+     68    000000                                 ; -----
+     69    000054              PAD_SIZE    = 84   ; scratch pad
+     70    000000                                 ; -----
+     71    000054              TIB_SIZE    = 84   ; terminal input buffer
+     72    000000                                 ; -----
+     73    000000                                 ; <-- HERE
+     74    000010              VAR_SIZE    = 16   ; variable area SAVEed in
+                                INFO-C
+     75    000000                                 ; -----
+     76    000000                                 
+     77    000000              
+     78    000000              ;        PUBLIC  UP,UAREA,PADAREA,LSTACK,PSTACK,
+                               RSTACK
+     79    000000                      PUBLIC  PADAREA,LSTACK,PSTACK,RSTACK
+     80    000000                      PUBLIC  TIBAREA,TIB_SIZE,UAREA_SIZE,VARA
+ REA,VAR_SIZE
+     81    000000                      PUBLIC  reset,main
+     82    000000                      PUBLIC  UAREA,UP,cor
+     83    000000                      PUBLIC  ROMDICT,RAMDICT
+     84    000000              
+     85    000000                      EXTERN  lastword,fenceadr,NOOP
+     86    000000              ;        EXTERN  runmagic,runsmal
+     87    000000                      EXTERN  lastword
+     88    000000                      EXTERN  COLDIP,BOOTIP
+     89    000000              ;        EXTERN  DEBUGIP
+     90    000000                      
+     91    000000                      RSEG    DATA16_Z  ; uninitialized RAM
+  segment
+     92    000000              
+     93    000000              ; RAM user area    -   system label, holds
+                                active user area 
+     94    000000              ; initialiesed by BOOT
+     95    000000              ; see hilvl UINIT
+     96    000000              
+     97    000000              UP:       DS16 1
+     98    000002              UAREA:    DS16 UAREA_SIZE
+     99    000026              
+    100    000026              ; cor    -     cause of reset variable, copy of
+                                IFG1
+    101    000026              cor:      DS16 1
+    102    000028              
+    103    000028              ; LSTACK   -   start leave stack
+    104    000028              LSTACK:
+    105    000028                        DS16  PSTACK_SIZE ; allocate parameter
+                                                            stack
+    106    000094              ; PSTACK   -   top of parameter stack         
+                                
+    107    000094              PSTACK:                     
+    108    000094                        DS16  RSTACK_SIZE ; allocate return
+                                                            stack
+    109    000100              ; RSTACK   -   top of return stack 
+    110    000100              RSTACK:                     
+    111    000100                        DS8   HOLD_SIZE   ; allocate hold
+                                                            area
+    112    000122              ; HOLDAREA   -   top of hold adrea
+    113    000122              HOLDAREA:
+    114    000122              
+    115    000122              ; PADAREA    -   start scratch pad; must follow
+                                HOLDAREA
+    116    000122              PADAREA:  DS8   PAD_SIZE
+    117    000176              
+    118    000176              ; TIBAREA    -   start Terminal Input Buffer
+    119    000176              TIBAREA:  DS8   TIB_SIZE
+    120    0001CA              
+    121    0001CA              /*
+    122    0001CA              ; WASAREA    -    4 variables for Assembler
+                                WAS
+    123    0001CA              WASAREA:
+    124    0001CA              PUBLIC X1ADR,X2ADR,OPCADR,EXTADR
+    125    0001CA              X1ADR:  DS16 1
+    126    0001CA              X2ADR:  DS16 1
+    127    0001CA              OPCADR: DS16 1
+    128    0001CA              EXTADR: DS16 1
+    129    0001CA              */
+    130    0001CA              
+    131    0001CA              ; RAMDICT    -   end of system areas, start of
+                                free RAM
+    132    0001CA              RAMDICT:
+    133    0001CA              
+    134    0001CA              ; Variable Area is free RAM. 
+    135    0001CA              ; But it is saved to INFO-C when you SAVE an
+                                app.
+    136    0001CA              ; So your app will start with your variables
+                                set.
+    137    0001CA              ; VARAREA    -   start Variable Area
+    138    0001CA              VARAREA:  DS16   VAR_SIZE
+    139    0001EA              
+    140    0001EA              ; ----------------------------------------------
+                               ------------------------
+    141    0001EA              ; POWER ON RESET AND INITIALIZATION
+    142    0001EA              
+    143    0001EA              #include "msp430F2274.h"            ; #define
+                                controlled include file
+    144    0001EA              #include "4e-CF430F2274forth.h"     ; header
+                                macros and register defs
+    145    0001EA              
+    146    000000                      RSEG CODE          ; place init in
+  'CODE' segment
+    147    000000              
+    148    000000              ; ----------------------------------------------
+                               ------------------------
+    149    000000              ; MSP430F2274 Initialize system 
+    150    000000              ; (original: FR_EXP.lst and some of mecrisp
+                                (Koch)
+    151    000000              ; for MSP-LaunchPad 
+    152    000000              
+    153    000000              ; main   -   start_init, reset service
+                                routine
+    154    000000              main:             ; Debugger requires the 'main'
+                                symbol. 
+    155    000000              reset:            ; forth requires the reset
+                                symbol.
+    156    000000              start_init:       ; I require the start_init
+                                symbol. ;-)
+    157    000000              
+    158    000000 B240805A2001     MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop
+                                                                    watchdog
+                                                                    timer
+    159    000006              
+    160    000006 D2420200....     MOV.B   &IFG1,&cor      ; save IFG1 to cor
+                                                            low byte
+    161    00000C C243....         MOV.B   #0,&(cor+1) ; clr hi byte
+    162    000010              
+    163    000010 D242FD105700     mov.b   &CALBC1_8MHZ, &BCSCTL1   ; Set
+                                                                     DCO
+    164    000016 D242FC105600     mov.b   &CALDCO_8MHZ, &DCOCTL    ; to 8
+                                                                     MHz.
+    165    00001C              
+    166    00001C              ; Enable ports
+    167    00001C F2D010001B00     BIS.B   #BIT4,&P3SEL ; select second
+                                                         function of P3.4 =
+                                                         UCA0TXD ...
+    168    000022 F2D010001A00     BIS.B   #BIT4,&P3DIR ; ... so make it
+                                                         output.
+    169    000028 F2D020001B00     BIS.B   #BIT5,&P3SEL ; select second
+                                                         function of P3.5 =
+                                                         UCA0RXD ...
+    170    00002E F2C020001A00     BIC.B   #BIT5,&P3DIR ; ... so make it
+                                                         input.
+    171    000034              
+    172    000034              ; Configure UART (Koch) 
+    173    000034 F2D080006100     bis.b   #UCSSEL_2,&UCA0CTL1     ;db2
+                                                                    SMCLK
+    174    00003A F24041006200     mov.b   #65,&UCA0BR0            ;db3 8MHz
+                                                                    9600
+                                                                    Insgesamt
+                                                                    833
+    175    000040 F24003006300     mov.b   #3,&UCA0BR1             ;db4 8MHz
+                                                                    9600
+    176    000046 E2426400         mov.b   #UCBRS_2,&UCA0MCTL      ;db5
+                                                                    Modulation
+                                                                    UCBRSx =
+                                                                    2
+    177    00004A D2C36100         bic.b   #UCSWRST,&UCA0CTL1      ;db6
+                                                                    **Initializ
+                                                                   e USCI state
+                                                                    machine**
+    178    00004E              
+    179    00004E F24041006700     MOV.B   #'A',&UCA0TXBUF  ; test emit
+    180    000054              
+    181    000054              ;    clr.b   &IE1 ; Lösche die Interrupt-Flags
+                                von Oscillator Fault,
+    182    000054              ;                 ; NMI, Flash-Violation.
+    183    000054 E2C30000         bic.b   #OFIE,&IE1
+    184    000058 B24000A52801     mov.w   #FWKEY, &FCTL1           ; Schreib-
+                                                                     &
+                                                                     Loeschzugr
+                                                                    iffe
+                                                                     ausgeschal
+                                                                    tet.
+    185    00005E B24053A52A01     mov.w   #FWKEY|FSSEL_1|19, &FCTL2 ; MCLK/20
+                                                                      for Flash
+                                                                      Timing
+                                                                      Generator
+    186    000064              
+    187    000064 B24010A52C01     mov.w   #FWKEY+LOCK, &FCTL3      ; Lock
+                                                                     Flash
+                                                                     memory
+                                                                     against
+                                                                     writing
+    188    00006A              
+    189    00006A              ; setup forth registers
+    190    00006A 3140....         MOV     #RSTACK,SP              ; set up
+                                                                    return
+                                                                    stack
+    191    00006E 3440....         MOV     #PSTACK,PSP             ; set up
+                                                                    parameter
+                                                                    stack
+    192    000072 B240........     MOV     #UAREA,&UP              ; initial
+                                                                    user
+                                                                    pointer
+    193    000078 0743             MOV     #0,TOS                  ; clear top
+                                                                    of
+                                                                    pstack
+    194    00007A 3540....         MOV     #COLDIP,IP              ; set IP of
+                                                                    starting
+                                                                    word
+    195    00007E                  
+    196    00007E              ;    MOV     #COLDIP,IP              ; set IP of
+                                starting word
+    197    00007E 3540....         MOV     #BOOTIP,IP              ; set IP of
+                                                                    starting
+                                                                    word
+                                                                    
+    198    000082              ;    MOV     #DEBUGIP,IP              ; set IP
+                                of starting word 
+    199    000082              
+    200    000082                  NEXT ; enter virtual forth maschine
+                                now
+    200.1  000082 3645                 MOV @IP+,W     // ; fetch word address
+  into W
+    200.2  000084 3046                 MOV @W+,PC     // ; fetch code address
+  into PC, W=PFA
+    200.3  000086                      ENDM
+    201    000086              
+    202    000086              init_end:
+    203    000086              
+    204    000086              ; ----------------------------------------------
+                               ------------------------
+    205    000086              ; DEFAULT INTERRUPT HANDLER nullirq
+    206    000000                        PUBLIC isr_null
+    207    000086 32C2         isr_null: DINT 
+    208    000088 0013                   RETI 
+    209    00008A              isr_null_end: 
+    210    00008A              
+    211    00008A              ROMDICT:
+    212    00008A                        END
+##############################
+#          CRC:64AC          #
+#        Errors:   0         #
+#        Warnings: 0         #
+#         Bytes: 138         #
+##############################
+
+
+
+

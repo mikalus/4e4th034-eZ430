@@ -1,0 +1,109 @@
+; Build 4e4th on TI MSP430 eZ430-RF2500 board.
+
+; ----------------------------------------------------------------------
+; 4e4th is a Forth based on CamelForth 
+; for the Texas Instruments MSP430 
+; 
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+; 
+; See LICENSE TERMS in Brads file readme.txt as well.
+; ----------------------------------------------------------------------
+
+#include "msp430.h"                     ; #define controlled include file
+#include "4e-CF430F2274forth.h"         ; header macros and register defs
+
+        EXTERN  UP,UAREA,PADAREA,LSTACK,PSTACK,RSTACK
+        EXTERN  TIBAREA,RAMDICT,ROMDICT
+        EXTERN  TIB_SIZE,UAREA_SIZE,VARAREA,VAR_SIZE,nullirq
+
+        RSEG    CODE                    ; place program in 'CODE' segment
+
+link    SET 0           ; initial dictionary link
+
+; ----------------------------------------------------------------------
+; chip ident
+
+
+; production fuse 
+PROFUSE:  DW 0xFFFF  ; burn fuse to prohibit WIPE 
+
+; version strings 
+version:  DB (verend-ver0)
+ver0:     DB ' MSP430F2274 4E4th ' 
+          EVEN 0x20 ; use blank as padding byte
+verend:
+
+stamp:    DB (stampend-stamp0)
+stamp0:   DB __date__,' ',__time__
+stampend: 
+
+; ----------------------------------------------------------------------
+; We #include the following source files, rather than compiling them 
+; separately, so that they can inherit the value of 'link'.
+
+; This is minimum for 4e4th ...
+#include "4e-deps430F2274.s43" ; MCU dependent code.
+#include "4e-core430.s43"      ; Assembled words, former called 'primitives'.
+#include "4e-hilvl430.s43"     ; forth kernel coded 'high level'.
+#include "4e-boot-eZ430.s43"   ; 4e4th boot procedure.´
+; ... here we have a running forth kernel.
+
+
+; Include some features...
+; #include "4e-vecarea.s43"      ; handling of flash memory vector area.
+; #include "4e-asmscripting.s43" ; basics for cross assembling. 
+; #include "4e-onewire.s43"      ; if you like add onewire bascics
+; #include "4e-LPM.s43"          ; handling sleepmodes
+; #include "4e-WAS430G2553.s43"  ; Willems Assembler
+; #include "4e-eZ430-RF2500.s43"    ; ... and finaly some board specific words.
+
+
+/*
+; DEBUG FORTH EXECUTION 
+; debug serieal
+  PUBLIC DEBUGIP
+DEBUGIP: 
+;  DW  DOTID
+DEBUG1: 
+;   DW TASK
+   DW  KEY  ; 1@A0 test 1=rot,@=grün,A=beide,0=aus
+   DW  DUP  ;,DOTS,CR
+   DW  STORELEDS
+;   DW  COLD
+   DW  EMIT 
+   DW  lit,0,qbran
+   DW  DEBUG1-$
+   DW  bran,-2
+
+/*
+; debugging only
+  HEADLESS CREATE,DOCOLON
+  HEADLESS ALLOT,DOCOLON
+  HEADLESS BUILDS,DOCOLON
+  HEADLESS ICOMMA,DOCOLON
+  HEADLESS XDOES,DOCOLON
+  HEADLESS IHERE,DOCOLON
+  HEADLESS IALLOT,DOCOLON
+  HEADLESS CELL,DOCOLON
+  HEADLESS PJOUT,DOCOLON
+*/
+
+
+PUBLIC lastword
+lastword equ link
+
+; for debug map only:
+CamelForthEnd:
+
+        END

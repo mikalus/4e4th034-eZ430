@@ -1,0 +1,86 @@
+; setup a sleep function.
+
+/************************************************************
+* Interrupt Vectors (offset from 0xFFE0)
+
+#define PORT1_VECTOR        (2 * 2u)  0xFFE4 Port 1 
+#define PORT2_VECTOR        (3 * 2u)  0xFFE6 Port 2 
+#define ADC10_VECTOR        (5 * 2u)  0xFFEA ADC10 
+#define USCIAB0TX_VECTOR    (6 * 2u)  0xFFEC USCI A0/B0 Transmit 
+#define USCIAB0RX_VECTOR    (7 * 2u)  0xFFEE USCI A0/B0 Receive 
+#define TIMER0_A1_VECTOR    (8 * 2u)  0xFFF0 Timer0)A CC1, TA0 
+#define TIMER0_A0_VECTOR    (9 * 2u)  0xFFF2 Timer0_A CC0 
+#define WDT_VECTOR          (10 * 2u) 0xFFF4 Watchdog Timer 
+#define COMPARATORA_VECTOR  (11 * 2u) 0xFFF6 Comparator A 
+#define TIMER1_A1_VECTOR    (12 * 2u) 0xFFF8 Timer1_A CC1-4, TA1 
+#define TIMER1_A0_VECTOR    (13 * 2u) 0xFFFA Timer1_A CC0 
+#define NMI_VECTOR          (14 * 2u) 0xFFFC Non-maskable 
+#define RESET_VECTOR        (15 * 2u) 0xFFFE Reset [Highest Priority] 
+
+services:
+- UCA0 interupt enable.
+- Activate LPM4 mode. 
+- UCA0 ISR disables lpm4 mode.
+- UCA0 interupt disable.
+
+***************************************************************/
+
+;C IRXON    --             turn UCA0 interrupt on
+    HEADER IRXON,5,'IRXON',DOCODE
+       BIC.B #11000000b,IFG1
+       BIS.B #UCA0RXIE,IE2
+       NEXT
+
+;C IRXOFF    --             turn UCA0 interrupt off
+    HEADER IRXOFF,6,'IRXOFF',DOCODE
+       BIC.B #UCA0RXIE,IE2
+       NEXT
+
+;C LPM_WAKE    -- adr        LPM wake up interrupt service routine address
+;  turns off LPM mode.
+    HEADER LPM_WAKE,8,'LPM_WAKE',DOCON
+       DW lpm_wake
+lpm_wake:
+        ; BIS.B #BIT0,&021h      ; red LED on
+        BIC #(GIE+LPM4),0(RSP) ; clear SR on return stack - turn CPU on.        
+        RETI
+PUBLIC lpm_wake
+
+;Z LPM4      --           ; Enter low power mode 4, wake on interrupt.
+     HEADER setlpm4,4,'LPM4',DOCODE
+         ; BIC.B #BIT0,&021h    ; red LED off
+         PUSH SR
+         BIS #(GIE+LPM4),SR   ; CPU stops here
+         POP SR
+         ; DINT
+         ; BIS.B #BIT0,&021h    ; red LED on
+         NEXT
+
+;Z LPM0      --           ; Enter low power mode 0, wake on interrupt.
+     HEADER setlpm0,4,'LPM0',DOCODE
+         ; BIC.B #BIT0,&021h    ; red LED off
+         PUSH SR
+         BIS #(GIE+LPM0),SR   ; CPU stops here
+         POP SR
+         ; DINT
+         ; BIS.B #BIT0,&021h    ; red LED on
+         NEXT
+
+;Z SETIRX  --            set IRX vector to wakr up MCU  
+;    lpm_wake-isr_rx FFEE interrrupt ;
+     HEADER SETIRX,6,'SETIRX',DOCOLON
+         DW LPM_WAKE,lit,(intvecs+USCIAB0RX_VECTOR),INTERRUPT
+         DW EXIT
+         
+
+/**************************************************************
+;Z IE2    --  adr     Interrupt enable register for UCA0
+     HEADER IE2CON,3,'IE2',DOCON
+         DW IE2
+         
+;Z UCA0RXIE    -- adr      Interrupt mask UCA0
+     HEADER UCA0RXIEmask,8,'UCA0RXIE',DOCON
+         DW UCA0RXIE
+***************************************************************/
+
+; finis

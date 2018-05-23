@@ -1,0 +1,202 @@
+4E4th 
+
+4E4th is a small Forth running on TI's LaunchPad. 
+It is an ANS Forth subset, needs 6K of the MSP430G2553 MCU FLASH ($E000-$FFFF). 
+There are 8K ($C000-$DFFF) free for your own Experiments. 
+
+Communication with the 4E4th works with its line editor, accessed by a terminal  emulator. 
+
+4E4th is based on MSP430 CamelForth version 0.3 written by B. J. Rodriguez for the MSP430F1611Tini430 board. http://www.camelforth.com/ 
+
+4E4th is, as CamelForth is, free software (GNU General Public License). 
+
+  
+
+LaunchPad Adjustments: 
+
+4E4th uses the hardware UART of the MSP430G2553. The LaunchPad TXD and RXD jumpers on J3 at the LaunchPad board are in SW UART position when delivered by TI. To use the hardware UART, position 
+the TXD and RXD jumpers on J3 as shown with the image of the MSP-EXP430G2 LaunchPad Quick Start Guide (SLAC432) to ensure that the Rx and Tx pins are properly configured for the HW UART. 
+In case you are using 4E4th with an older Launchpad version, remove the TXD and RXD jumpers and connect the TXD and RXD pins crosswise. 
+
+  
+
+What Terminal is the right one? 
+
+Windows XP 
+  LaunchPad Windows USB Drivers have to be installed. 
+    Using the Hardware Wizard or the Device Manager, the file: 
+    WinDriver_for_TI-LaunchPad_USB_serial.inf 
+    has to be used to get an USB serial COM Port for the LaunchPad. 
+    You will find this inf file at: 
+    http://www.forth-ev.de/repos/CF430G2553/ 
+  Further information is found at TI's document slau278h.pdf, page 139, 
+  Hardware Installation Guide. 
+  Source: http://www.ti.com/lit/ug/slau278h/slau278h.pdf 
+
+- TeraTerm works fine. 
+  http://www.heise.de/download/teraterm-pro.html 
+- HyperTerminal does, too. 
+  If HyperTerminal doesn't work properly with 4E4th, check 
+  File / Properties / Settings / ASCII Setup: 
+  Only "Wrap lines that exceed terminal width" may be checked. 
+  Line Feeds and Echo are not allowed. 
+- 4E4th-Terminal is a special Terminal Emulation for Forth Applications. 
+  Will be launched later. 
+
+macOSX 
+  Install LaunchPad OSX USB driver (CDC /VCP) 
+    MSP430LPCDC 1.0.3b.pkg - starting with Mac OSX Version 1.5 
+  See at 
+http://code.google.com/p/msp430lpcdc/downloads/detail?name=MSP430LPCDC%201.0.3b.pkg&can=2&q= 
+  More information at 
+  http://processors.wiki.ti.com/index.php/MSP430_LaunchPad_Mac_OS_X 
+
+- ZTerm 
+   Settings>Modem Preferences...  Serial Port (choose uart-40FF42C59D89223A or similar) 
+   Settings>Connection... Data Rate 9600 
+   
+- Kermit 
+   % kermit 
+   kermit> set line /dev/tty.uart-40FF42C59D89223A  or similar 
+   kermit> set speed 9600 
+   kermit> connect 
+   
+Linux 
+  Seems to be working without special drivers with Debian squeeze on i386 and on PPC. 
+
+  
+
+To start 4E4th (boot or reboot): 
+
+Connect the Launchpad with your PC or laptop, using the USB cable out of the Launchpad box. 
+The USB connection is the LaunchPad's power supply and the serial Interface to your Terminal emulator. 
+
+As soon as the LaunchPad is connected, Forth is started (both LEDs are switched on) - assuming your Laptop or PC is switched on. 
+
+For testing and to start Forth again, use the LaunchPad's Reset button. Forth starts with its latest saved status. To get back the status at delivery, push and hold LaunchPad's button S2 and 
+push the Reset button. 
+
+Attention: 
+The USB connection may sometimes be tricky. It is important that your PC recognizes the USB connection. Windows XP makes a special sound every time a new USB connection is recognized, and 
+it makes a special sound in case the USB connector is pulled out. If you don't listen to these sounds, it may be that the USB connection doesn't work, and the Terminal software doesn't 
+recognize the LaunchPad's USB port. This is equally important when using TI's MSP-FET430UIF. 
+Please do this: 
+Switch on your speaker and listen to this special sound coming up when connecting the LaunchPad to USB, and start your Terminal after this. 
+Please always connect the USB cable at the LaunchPad board first, then to your computer. 
+
+  
+
+Communication with 4E4th 
+
+Terminal settings are 9600Baud 8N1. To be sure that communication is started, push <Enter> several times. 4E4th answers with ok. 
+By the way, every input ends with pushing <Enter> to be executed. 
+
+To became familiar with 4E4th, try this: 
+Type   
+      red p1set  
+or   
+      green p1set  
+and <Enter>, of course. The red or the green LED will be lit, respectively. 
+
+Type 
+      11 22 33 
+The answer "ok" tells you that these numbers are on the data stack now. 
+
+Type      .S 
+(a dot and a capital "S") and <Enter>.
+4E4th answers with the quantity of the typed values and shows the typed values from stack. 
+You may repeat the .S command several times. You should always get the same result. 
+
+4E4th expects your commands typed in the same way as they have been defined. 4E4th distinguishes between capital and non-capital letters. System words normally use CAPITAL letters, so these 
+have to be typed with CAPITAL letters, too. Only some special system words are using small letters, as you have seen with "red" and "green" and "p1set". 
+
+4E4th is capable of different number bases. 4E4th starts in DECIMAL mode and then accepts only decimal numbers. To make Embedded Systems programming easier, you may switch to HEX mode, and 
+4E4th only accepts hex numbers then. Typing DECIMAL switches back to decimal mode. 
+
+Here another Test: 
+Type this text
+
+: TEST ." I am here " ; 
+
+4E4th answers with "ok", as usual, to show that your input is accepted. 
+You just created a new command, and this command has just been added to the 4E4th system. 
+
+Now type 
+
+   TEST <Enter> 
+
+and look what this command does. You just learned that for creating of a new command you first 
+type a colon ":", and at the end of this definition you type a semicolon ";". 
+
+More examples you will find in Forth Tutorials, the "Starting Forth online edition" is a good start. You will find it at http://www.forth.com/starting-forth/ 
+
+  
+
+Saving your Program 
+
+The only thing you have to do to save your program is: type SAVE <Enter>. 
+SAVE saves your program on the MSP430G2553 FLASH memory. 
+
+To remove your program, type WIPE. Be careful. This is a powerful instruction. When typing WIPE work of may be several hours will be gone. That's why 4E4th-Terminal logs all your typing, and 
+you will be able to download your work again. 
+
+Another way to remove your programs was mentioned before: pressing the LaunchPad's S2 button and then the RESET button while holding S2. 
+
+There is one special thing important to know: 
+The FLASH memory can only be written upon once. Always use NEW to start programming with a clean FLASH memory. 
+  
+
+
+Update or Recover the 4E4th 
+
+A binary Image of 4E4th will be found at http://www.forth-ev.de/repos/CF430G2553/CF430G2553.a43 
+This Intel hex file holds all data needed for 4E4th. But you need a programmer to get your MSP430G2553 flashed. 
+
+These programmers are recommended: 
+
+Windows XP 
+You may use: FET-Pro430 Lite version FREE. 
+http://www.elprotronic.com/fetpro430.html 
+
+macOSX (Intel) 
+toolchain: 
+http://processors.wiki.ti.com/index.php/MSP430_LaunchPad_Mac_OS_X 
+
+
+All 4E4th source files are available at http://www.forth-ev.de/repos/CF430G2553/ 
+There is a readme.430 file which tells you how to get your Forth done by yourself. 
+This webpage contains  all the code you need to generate your Forth by using IAR's "kickstart", 
+the binary image is CF430G2553.a43, you can load it into the LaunchPad's MSP430G2553 directly. 
+The *.s43 files hold the complete 4E4th source code. 
+
+  
+
+Glossary of special 4E4th LaunchPad words: 
+
+Memory 
+SAVE ( -- )  Saves the typed additions. Stacks unchanged. Saves actual uarea. 
+WIPE ( -- )  Back to original status. Stacks unchanged. uarea back to original. 
+  
+ P1           -- adr                        port1 output address 
+ p1set        m --                          set port pins with mask 
+ p1clr        m --                          clear port pins with mask 
+ red          -- m                          red LED mask 
+ green        -- m                          green LED mask 
+ S?           -- f                          test button S2, true is pressed 
+ P2           -- adr                        port1 output address 
+ p2set        m --                          set port pins with mask 
+ p2clr        m --                          clear port pins with mask 
+
+
+The complete 4E4th vocabulary you will find here: 
+http://www.forth-ev.de/repos/CF430G2553/Glossary.txt.pdf 
+
+--- 
+Acknowledgements: 
+Many thanks to the groundbreaking work creating CamelForth done by Brad Rodriguez. 
+Thanks to Dirk Bruehl for his untiring and unselfish support of the 4E4th Project, by ordering the appropriate hardware and encouraging with many hints and ideas to go on until CamelForth 
+was running on the LaunchPad. 
+mk 03-14-2012 
+
+
+

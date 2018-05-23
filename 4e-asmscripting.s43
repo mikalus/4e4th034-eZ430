@@ -1,0 +1,55 @@
+;------------------------------------------------------------------------------
+;U Basics for an external cross assembler 
+;  compiles a script send via terminal.
+;------------------------------------------------------------------------------
+; 12 Jan 2013  mk
+;    Use CODE ... NEXT, END-CODE to build code primitives. 
+;    Usage:   CODE name  opcode1 i, opcode2 i, opcode3 i, ... NEXT, END-CODE
+;------------------------------------------------------------------------------
+
+; Example  
+/**************************************************
+
+\ Copy&paste this source code to 4e4th:
+   hex 
+   CODE REDOFF    C3D2 I, 0021 I,   NEXT, END-CODE
+   CODE REDON     D3D2 I, 0021 I,   NEXT, END-CODE
+
+\ Now test run the words you just compiled:
+   REDOFF   1000 ms   REDON
+
+***************************************************/
+;------------------------------------------------------------------------------
+
+;U CODE       <name> --       build header for assembler word,
+;                              execute code at runtime.
+;    <builds ihere ihere 2 -  i!  ;
+     HEADER  CODEE,4,'CODE',DOCOLON
+        DW BUILDS,IHERE,IHERE,lit,2,MINUS,ISTORE
+        DW EXIT
+        
+;U CODEADR    <name> --   build constant
+;  <name>     -- adr      at runtime put address of next cell on stack,
+;                         thats where your code starts.
+;    <builds does>  ;
+     HEADER  CODEADR,7,'CODEADR',DOCOLON
+        DW BUILDS,XDOES  ; build forth word <name>
+        MOV #DOROM,PC    ; push ihere to TOS 
+
+;U CALL   adr --   run a code subroutine starting at address.
+     HEADER  CALLL,4,'CALL',DOCODE
+       CALL TOS
+       next       
+
+;U NEXT,       --       Macro; compiles jump to high level forth          
+;    hex  : next  4536 i, 4630 i, ;
+     HEADER  NEXTCOMA,5,'NEXT,',DOCOLON
+        DW lit,4536h,ICOMMA,lit,4630h,ICOMMA
+        DW EXIT
+
+;U END-CODE       --       mark end of code section          
+;     ;
+     HEADER  ENDCODE,8,'END-CODE',DOCOLON
+        DW EXIT ; dummy - used as delimiter in 4e4th-IDE to generate code 
+
+; finis

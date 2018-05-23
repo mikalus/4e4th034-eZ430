@@ -1,0 +1,143 @@
+4E4th
+
+4E4th ist kleines Forth das auf dem Texas Instruments LaunchPad abläuft. 
+Es ist ein ANS Forth subset, und belegt 6K im FLASH der MSP430G2553 MCU ($E000-$FFFF). Weitere 8K ($C000-$DFFF) sind frei für eigene Experimente.
+
+Du kommunizierst mit dem 4E4th mit Hilfe eines Zeilen Editors der über einen Terminal Emulator betrieben wird.
+
+4E4th basiert auf der MSP430 CamelForth version 0.3 von B. J. Rodriguez, welches er für das TI Tini430 board mit dem MSP430F1611 geschrieben hatte. http://www.camelforth.com/
+
+4E4th ist, wie das CamelForth auch, freie Software (GNU General Public License).
+
+
+
+Das LaunchPad richtig einstellen!
+
+Ab Rev1.5 verfügt das LaunchPad über TX und RX Brücken die 90° gedreht werden können. Ausgeliefert wird in der SW UART Stellung. Stelle um auf die HW UART Position (quer), weil 4E4th den Hardware UART benutzt. (Im MSP430G2553 sind die TX und RX Pins des HW UART von TI aus internen Gründen vertauscht worden; mit Rev1.5 hat TI Abhilfe geschaffen). 
+
+
+
+Welches Terminal nehmen?
+
+Windows XP
+  LaunchPad Windows USB Treiber installieren.
+    Mit dem Hardware Wizard oder dem Geräte-Manager die Datei:
+    WinDriver_for_TI-LaunchPad_USB_serial.inf
+    ausführen lassen, damit ein USB-serieller COM Port für das Launchpad bereit    
+    gestellt wird. Diese inf Datei liegt unter:
+    http://www.forth-ev.de/repos/CF430G2553/
+  Siehe auch Dokument slau278h.pdf bei TI.COM, S.139, 
+  Hardware Installation Guide. 
+
+- TeraTerm leistete gute Dienste.
+  http://www.heise.de/download/teraterm-pro.html
+- HyperTerminal leistete ebenfalls gute Dienste. 
+  (Einstellungen beachten: Kein extra LF am Zeilenende einfügen lassen!)
+- vFterminal ist eine Terminal Emulation spezielle für Forth Anwendungen.
+  (noch im Versuchsstadium: Link folgt)
+
+macOSX
+  LaunchPad OSX USB Treiber (CDC /VCP) installieren
+    MSP430LPCDC 1.0.3b.pkg - ab Mac OSX Version 1.5
+  siehe http://code.google.com/p/msp430lpcdc/downloads/detail?name=MSP430LPCDC%201.0.3b.pkg&can=2&q=
+  Weitere Infos unter
+  http://processors.wiki.ti.com/index.php/MSP430_LaunchPad_Mac_OS_X
+
+- ZTerm
+   Seetings>Modem Preferences...  Serial Port (uart-40FF42C59D89223A oder ähnlich auswählen)
+   Settings>Connection... Data Rate 9600
+   
+- Kermit 
+   % kermit
+   kermit> set line /dev/tty.uart-40FF42C59D89223A  oder ähnlich
+   kermit> set speed 9600
+   kermit> connect
+   
+Linux
+  Scheint ohne spezielle Treiber auf Debian squeeze auf i386 und auf PPC zu gehen (Gerald).
+
+
+
+4E4th starten (booten oder rebooten)
+
+Schließ das Launchpad mit dem USB Kable an den Rechner an. Die USB Verbindung versorgt das LaunchPad mit Strom und ist gleichzeitig die serielle Schnittstelle zu deinem Terminal. 
+
+Dein Forth im LaunchPad startet von selbst sobald der Strom eingeschaltet wird (beide LEDs gehen an). 
+
+Du kannst Forth erneut starten durch drücken des Reset Tasters. Forth startet automatisch im zuletzt gesicherten Zustand. Um den Lieferzustand zu erzwingen halte Taster S2 gedrückt und drücke dann Reset. Die USB-Verbindung dient auch dazu den Prozessor neu zu FLASHen.
+
+(Achtung: USB kann manchmal trickreich sein. Es ist wichtig, dass die USB-Verbindung vom Rechner erkannt wird. Bei Windows XP ist es so, dass es eine Klangfolge gibt, wenn eine neue Verbindung erkannt wird, und eine Klangfolge, wenn der USB-Stecker abgezogen wird. Wenn darauf nicht geachtet wird, klappt die Verbingung nicht, weil das Terminalprogramm die USB-Schnittstelle dann nicht erkennt. Das gilt auch fuer den USB Treiber von Texas Instruments MSP-FET430UIF. Also: Lautsprecher einschalten und auf die Klangfolge achten, und danach erst Terminal starten! Zudem immer erst das USB-Kabel an der Platinenseite anstoepseln, danach an der Rechnerseite.)
+
+
+
+Mit dem 4E4th kommunizieren
+
+Stelle dein Terminal auf 9600Baud 8N1 ein. Drücke einige male die Eingabe Taste <ret>. 4E4th antwortet mit ok. (Jede Eingabe muss immer mit drücken der Eingabetaste beendet werden.)
+
+Gebe die Worte   red p1set  oder   green p1set  ein.
+
+Gebe 11 22 33 ein. ok zeigt das die Eingabe auf den Datenstack erfolgt ist. Gebe den Forthbefehl .S ein (ein Punkt und ein großes "S"). Du siehst nun was auf dem Stack liegt.  
+
+Es ist wichtig, in 4E4th die Worte in der gleichen Schreibweise einzugeben, wie sie definiert sind, denn 4E4th unterscheidet zwischen Gross- und Kleinschreibung. Die Systemworte sind in der Regel in Grossbuchstaben, also muessen sie auch in Grossbuchstaben eingegeben werden. Einige spezielle Worte sind allerdings in Kleinschrift, wie bei red! oder green! zu sehen war.  4E4th startet in DECIMAL, d.h. alle Zahleneingaben werden dezimal interpretiert. Willst du Zahlen im Hexalsystem haben, kannst mit HEX darauf umschalten. DECIMAL schaltet zurück. 
+
+Gib folgenden Text in die Eingabezeile ein:
+: TEST ." bin da " ; 
+ok zeigt nun an das der neue Befehl TEST dem Forthsystem hinzugefügt worden ist.
+Tippe TEST <ret> um zu überprüfen was der Befehl macht.
+(Ein neuer Befehl beginnt mit : und wird mit ; beendet.)
+
+Weitere Beispiele sind im Forth Tutorial "Starting Forth online edition" gegeben.
+http://www.forth.com/starting-forth/
+
+
+
+Dein Programm sichern
+
+Tippe einfach SAVE um dein Programm zu sichern. Tippe WIPE um es zu entfernen. Es kann auch entfernt werden indem man die Taste S2 gedrückt hält und dann die Reset-Taste drückt, dabei werden alle neuen Definitionen, also die eigenen Programme, gelöscht. 
+
+(Es gibt eine Besonderheit im Umgang mit dem FLASH in MSP430 MCUs: Das FLASH kann immer nur 1x beschrieben werden! Ist also nicht so komfortabel wie RAM oder FRAM. Praktisch gesehen bedeutet das Programmabstürze, wenn man es übersieht das FLASH sauber zu löschen bevor man dort erneut speichert (compiliert). Oder anders ausgedrückt: Wenn ab IHERE kein $FF steht, kann man nichts dorthin speichern. Benutze NEW um in frisches FLASH compiliern zu können.)
+
+
+
+4E4th neu flashen
+
+Ein binäres Image deines Forth findest du unter http://www.4e4th.eu/ 
+Es ist eine Datei im intel hex Format, die mit einem geeigneten Programmer in die MCU geladen werden muss.
+
+Windows XP
+zB: FET-Pro430 Lite version FREE.
+http://www.elprotronic.com/fetpro430.html
+
+macOSX (intel)
+toolchain:
+http://processors.wiki.ti.com/index.php/MSP430_LaunchPad_Mac_OS_X
+
+
+http://www.4e4th.eu/ leitet zur Fort Gesellschaft weiter. Dort im Repository  liegt auch das aktuelle CF430G2553 Projekt, welches die Grundlage des 4E4th ist. Die Beschreibungen (readme) wie man das Forth selbst herstellen kann, und der dazu gehörende gesammte Quellcode (*.s43) um das Projekt im IAR "kickstart" anzulegen sind dabei. Das derzeitige binäre Image heißt CF430G2553.a43 und kann direkt mit dem Programmer in die MCU geladen werden.
+
+
+
+Glossary der LaunchPad bezogenen Worte und des 4e4th.
+
+Speicher
+SAVE ( -- )  Sichert den hinzugetippten Stand. Stacks unverändert. Aktuelle uarea gesichert.
+WIPE ( -- )  Zurück auf den Lieferzustand. Stacks unverändert. uarea im Lieferzustand.
+ 
+ P1           -- adr                        port1 output address 
+ p1set        m --                          set port pins with mask 
+ p1clr        m --                          clear port pins with mask 
+ red          -- m                          red LED mask 
+ green        -- m                          green LED mask 
+ S?           -- f                          test button S2, true is pressed 
+ P2           -- adr                        port1 output address 
+ p2set        m --                          set port pins with mask 
+ p2clr        m --                          clear port pins with mask 
+
+
+Das vollständige Wörterbuch deines Forth findest du im: 
+http://www.forth-ev.de/repos/CF430G2553/Glossary.txt.pdf
+
+---
+Danksagung (acknowledgement)
+Ich danke Brad Rodriguez für seine grundlegende Arbeit des CamelForth. Und Dirk Brühl für seine unermüdliche und selbstlose Förderung des 4E4th Projektes, indem er die Hardware beschaffte und mit vielen Ideen und Tips ermutigte weiter zu machen bis das CamelForth auf dem LaunchPad lief.
+mk 14.03.2012

@@ -1,0 +1,173 @@
+###############################################################################
+#                                                                             #
+#     IAR Assembler V6.30.1.934/W32  for MSP430 23/May/2018  06:18:04         #
+#     Copyright 1996-2015 IAR Systems AB.                                     #
+#                                                                             #
+#           Target option =  MSP430                                           #
+#           Source file   =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\4e-eZ430.s43#
+#           List file     =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\List\4e-eZ430.lst#
+#           Object file   =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\Obj\4e-eZ430.r43#
+#           Command line  =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\4e-eZ430.s43 #
+#                            -OC:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\Obj\ #
+#                            -s+ -M<> -w+                                     #
+#                            -LC:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\List\ #
+#                            -t8 -r -D__MSP430F2274__                         #
+#                            -IC:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\430\INC\ #
+#                                                                             #
+###############################################################################
+
+      1    000000              ; Build 4e4th on TI MSP430 eZ430-RF2500
+                                board.
+      2    000000              
+      3    000000              ; ----------------------------------------------
+                               ------------------------
+      4    000000              ; 4e4th is a Forth based on CamelForth
+                                
+      5    000000              ; for the Texas Instruments MSP430 
+      6    000000              ; 
+      7    000000              ; This program is free software; you can
+                                redistribute it and/or modify
+      8    000000              ; it under the terms of the GNU General Public
+                                License as published by
+      9    000000              ; the Free Software Foundation; either version 3
+                                of the License, or
+     10    000000              ; (at your option) any later version.
+     11    000000              ; 
+     12    000000              ; This program is distributed in the hope that
+                                it will be useful,
+     13    000000              ; but WITHOUT ANY WARRANTY; without even the
+                                implied warranty of
+     14    000000              ; MERCHANTABILITY or FITNESS FOR A PARTICULAR
+                                PURPOSE.  See the
+     15    000000              ; GNU General Public License for more details.
+     16    000000              ;
+     17    000000              ; You should have received a copy of the GNU
+                                General Public License
+     18    000000              ; along with this program.  If not, see
+                                <http://www.gnu.org/licenses/>.
+     19    000000              ; 
+     20    000000              ; See LICENSE TERMS in Brads file readme.txt as
+                                well.
+     21    000000              ; ----------------------------------------------
+                               ------------------------
+     22    000000              
+     23    000000              #include "msp430.h"                     ;
+                                #define controlled include file
+     24    000000              #include "4e-CF430F2274forth.h"         ; header
+                                macros and register defs
+     25    000000              
+     26    000000                      EXTERN  UP,UAREA,PADAREA,LSTACK,PSTACK,R
+ STACK
+     27    000000                      EXTERN  TIBAREA,RAMDICT,ROMDICT
+     28    000000                      EXTERN  TIB_SIZE,UAREA_SIZE,VARAREA,VAR_
+                               SIZE,nullirq
+     29    000000              
+     30    000000                      RSEG    CODE                    ; place
+  program in 'CODE' segment
+     31    000000              
+     32    000000              link    SET 0           ; initial dictionary
+                                link
+     33    000000              
+     34    000000              ; ----------------------------------------------
+                               ------------------------
+     35    000000              ; chip ident
+     36    000000              
+     37    000000              
+     38    000000              ; production fuse 
+     39    000000 FFFF         PROFUSE:  DW 0xFFFF  ; burn fuse to prohibit
+                                                     WIPE 
+     40    000002              
+     41    000002              ; version strings 
+     42    000002 13           version:  DB (verend-ver0)
+     43    000003 204D53503433*ver0:     DB ' MSP430F2274 4E4th ' 
+     44    000016                        EVEN 0x20 ; use blank as padding
+                                byte
+     45    000016              verend:
+     46    000016              
+     47    000016 16           stamp:    DB (stampend-stamp0)
+     48    000017 4D6179203233*stamp0:   DB __date__,' ',__time__
+     49    00002D              stampend: 
+     50    00002D              
+     51    00002D              ; ----------------------------------------------
+                               ------------------------
+     52    00002D              ; We #include the following source files, rather
+                                than compiling them 
+     53    00002D              ; separately, so that they can inherit the value
+                                of 'link'.
+     54    00002D              
+     55    00002D              ; This is minimum for 4e4th ...
+     56    00002D              #include "4e-deps430F2274.s43" ; MCU dependent
+                                code.
+     57    0001C0              #include "4e-core430.s43"      ; Assembled
+                                words, former called 'primitives'.
+     58    000992              #include "4e-hilvl430.s43"     ; forth kernel
+                                coded 'high level'.
+     59    001DD8              #include "4e-boot-eZ430.s43"   ; 4e4th boot
+                                procedure.´
+     60    001F54              ; ... here we have a running forth kernel.
+     61    001F54              
+     62    001F54              
+     63    001F54              ; Include some features...
+     64    001F54              ; #include "4e-vecarea.s43"      ; handling of
+                                flash memory vector area.
+     65    001F54              ; #include "4e-asmscripting.s43" ; basics for
+                                cross assembling. 
+     66    001F54              ; #include "4e-onewire.s43"      ; if you like
+                                add onewire bascics
+     67    001F54              ; #include "4e-LPM.s43"          ; handling
+                                sleepmodes
+     68    001F54              ; #include "4e-WAS430G2553.s43"  ; Willems
+                                Assembler
+     69    001F54              ; #include "4e-eZ430-RF2500.s43"    ; ... and
+                                finaly some board specific words.
+     70    001F54              
+     71    001F54              
+     72    001F54              /*
+     73    001F54              ; DEBUG FORTH EXECUTION 
+     74    001F54              ; debug serieal
+     75    001F54                PUBLIC DEBUGIP
+     76    001F54              DEBUGIP: 
+     77    001F54              ;  DW  DOTID
+     78    001F54              DEBUG1: 
+     79    001F54              ;   DW TASK
+     80    001F54                 DW  KEY  ; 1@A0 test 1=rot,@=grün,A=beide,0=a
+                               us
+     81    001F54                 DW  DUP  ;,DOTS,CR
+     82    001F54                 DW  STORELEDS
+     83    001F54              ;   DW  COLD
+     84    001F54                 DW  EMIT 
+     85    001F54                 DW  lit,0,qbran
+     86    001F54                 DW  DEBUG1-$
+     87    001F54                 DW  bran,-2
+     88    001F54              
+     89    001F54              /*
+     90    001F54              ; debugging only
+     91    001F54                HEADLESS CREATE,DOCOLON
+     92    001F54                HEADLESS ALLOT,DOCOLON
+     93    001F54                HEADLESS BUILDS,DOCOLON
+     94    001F54                HEADLESS ICOMMA,DOCOLON
+     95    001F54                HEADLESS XDOES,DOCOLON
+     96    001F54                HEADLESS IHERE,DOCOLON
+     97    001F54                HEADLESS IALLOT,DOCOLON
+     98    001F54                HEADLESS CELL,DOCOLON
+     99    001F54                HEADLESS PJOUT,DOCOLON
+    100    001F54              */
+    101    001F54              
+    102    001F54              
+    103    000000              PUBLIC lastword
+    104    001F54              lastword equ link
+    105    001F54              
+    106    001F54              ; for debug map only:
+    107    001F54              CamelForthEnd:
+    108    001F54              
+    109    001F54                      END
+##############################
+#          CRC:A32           #
+#        Errors:   0         #
+#        Warnings: 0         #
+#        Bytes: 8020         #
+##############################
+
+
+
+

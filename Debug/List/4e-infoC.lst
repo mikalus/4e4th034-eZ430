@@ -1,0 +1,97 @@
+###############################################################################
+#                                                                             #
+#     IAR Assembler V6.30.1.934/W32  for MSP430 23/May/2018  06:18:04         #
+#     Copyright 1996-2015 IAR Systems AB.                                     #
+#                                                                             #
+#           Target option =  MSP430                                           #
+#           Source file   =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\4e-infoC.s43#
+#           List file     =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\List\4e-infoC.lst#
+#           Object file   =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\Obj\4e-infoC.r43#
+#           Command line  =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\4e-infoC.s43 #
+#                            -OC:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\Obj\ #
+#                            -s+ -M<> -w+                                     #
+#                            -LC:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debug\List\ #
+#                            -t8 -r -D__MSP430F2274__                         #
+#                            -IC:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\430\INC\ #
+#                                                                             #
+###############################################################################
+
+      1    000000              ; ----------------------------------------------
+                               --------------------------------
+      2    000000              ; 4e4th is a Forth based on CamelForth
+                                
+      3    000000              ; for the Texas Instruments MSP430 
+      4    000000              ; 
+      5    000000              ; This program is free software; you can
+                                redistribute it and/or modify
+      6    000000              ; it under the terms of the GNU General Public
+                                License as published by
+      7    000000              ; the Free Software Foundation; either version 3
+                                of the License, or
+      8    000000              ; (at your option) any later version.
+      9    000000              ; 
+     10    000000              ; This program is distributed in the hope that
+                                it will be useful,
+     11    000000              ; but WITHOUT ANY WARRANTY; without even the
+                                implied warranty of
+     12    000000              ; MERCHANTABILITY or FITNESS FOR A PARTICULAR
+                                PURPOSE.  See the
+     13    000000              ; GNU General Public License for more details.
+     14    000000              ;
+     15    000000              ; You should have received a copy of the GNU
+                                General Public License
+     16    000000              ; along with this program.  If not, see
+                                <http://www.gnu.org/licenses/>.
+     17    000000              ; 
+     18    000000              ; See LICENSE TERMS in Brads file readme.txt as
+                                well.
+     19    000000              
+     20    000000              ; ----------------------------------------------
+                               --------------------------------
+     21    000000              ; 4e-infoCG2553.s43 - SAVE variables to infoC -
+                                MSP430G2553
+     22    000000              ; ----------------------------------------------
+                               --------------------------------
+     23    000000              
+     24    000000              #include "msp430.h"                     ;
+                                #define controlled include file
+     25    000000              #include "4e-CF430G2553forth.h"             ;
+                                header macros and register defs
+     26    000000              
+     27    000000              PUBLIC infoC
+     28    000000              
+     29    000000              RSEG INFOC
+     30    000000              
+     31    000000              ; VAR_AREA in infoC   -   saved variables,
+                                default value = 0
+     32    000000              
+     33    000000              infoC:
+     34    000000 0000                DW 0
+     35    000002 0000                DW 0
+     36    000004 0000                DW 0
+     37    000006 0000                DW 0
+     38    000008 0000                DW 0
+     39    00000A 0000                DW 0
+     40    00000C 0000                DW 0
+     41    00000E 0000                DW 0
+     42    000010              
+     43    000010 0000                DW 0
+     44    000012 0000                DW 0
+     45    000014 0000                DW 0
+     46    000016 0000                DW 0
+     47    000018 0000                DW 0
+     48    00001A 0000                DW 0
+     49    00001C 0000                DW 0
+     50    00001E 0000                DW 0
+     51    000020              
+     52    000020              END
+##############################
+#          CRC:C6D           #
+#        Errors:   0         #
+#        Warnings: 0         #
+#         Bytes: 32          #
+##############################
+
+
+
+

@@ -1,0 +1,150 @@
+;U STARTUP WORDS ===============================================================
+
+;U .BOOTVERSION  --  print boot version 
+    HEADLESS DOTBOOTVERSION,DOCOLON
+         DW XISQUOTE
+         DB (doboot1-doboot0)
+doboot0: DB ' debug '
+         EVEN
+doboot1: DW ITYPE
+         DW EXIT
+
+;Z ITHERE      -- adr      find first free flash cell
+;  MEMTOP BEGIN 1- 
+;  DUP C@ FF <> 
+;  OVER FL0 < OR UNTIL 1+ ;
+    HEADER  ITHERE,6,'ITHERE',DOCOLON
+      DW MEMTOP
+ih1   DW ONEMINUS,DUP,CFETCH,lit,$FF,NOTEQUAL
+      DW OVER,MEMBOT,LESS,ORR,qbran
+        DEST  ih1
+      DW ONEPLUS,EXIT
+
+;U APPCRC    -- crc      CRC of APP-dictionary
+;    0 MEMBOT ITHERE OVER - (crc  APPU0 #INIT (crc ;
+;    HEADER   APPCRC,6,'APPCRC',DOCOLON
+     HEADLESS APPCRC,DOCOLON
+        DW lit,0
+        DW MEMBOT,ITHERE,OVER,MINUS,CRC
+        DW APPU0,NINIT,CRC,EXIT
+
+EXTERN crcval 
+
+;U VALID?     -- f       check if user app crc matches infoB
+;     APPCRC crcval I@ = ;
+;    HEADER   VALIDQ,6,'VALID?',DOCOLON
+    HEADLESS VALIDQ,DOCOLON
+        DW APPCRC,lit,crcval,IFETCH,EQUAL,EXIT
+
+;U SAVE   --      save user area to infoB
+;  InfoB [ 63 2 + ] Literal FLERASE
+;  U0 APPU0 #INIT D->I
+;  APPCRC [ crcval ] Literal I! ;
+    HEADER  SAVE,4,'SAVE',DOCOLON
+        ; save user area to infoB
+        DW INFOB,lit,63+2,FLERASE
+        DW U0,APPU0,NINIT,DTOI 
+        DW APPCRC,lit,crcval,ISTORE
+        ; save variable area to infoC
+        DW INFOC,lit,63+2,FLERASE
+        DW HERE,UNUSED,ZERO,FILL
+        DW VARBOT,INFOC,lit,(VAR_SIZE)*2,DTOI 
+        DW EXIT
+
+CORREST    EQU 018Eh 
+CORPOWERON EQU 0186h 
+
+;Z BOOT     --        boot system
+    HEADER  BOOT,4,'BOOT',DOCOLON
+        DW S2,cget,qbran  
+        DEST  boot1 
+        DW VALIDQ,qbran
+        DEST invalid
+valid:  DW COLD   ; valid infoB and dictionary
+invalid:DW COR,FETCH,lit,CORPOWERON,NOTEQUAL,qbran
+        DEST boot1
+reset1:  ; reset and invalid infoB
+        DW LATEST,FETCH,MEMBOT,ITHERE,WITHIN,qbran  ; check RAM latest 
+        DEST boot1
+        DW WARM   ; invalid infoB but seemingly valid RAM
+boot1:  DW WIPE   ; invalid infoB but power on or RAM invalid
+
+PUBLIC BOOTIP ; used to init IP register.
+BOOTIP   equ BOOT+2
+
+;Z WARM     --        use user area from RAM (hopefully intact)
+    HEADER  WARM,4,'WARM',DOCOLON
+        DW XISQUOTE
+        DB (warm1-warm0)
+warm0:  DB 'Warm'
+        EVEN
+warm1:  DW ITYPE
+        DW ABORT
+
+;U .COLD  --  display COLD message
+    HEADLESS DOTCOLD,DOCOLON
+        DW XISQUOTE
+        DB (dotcold1-dotcold0)
+dotcold0:DB 'Cold'
+        EVEN
+dotcold1:DW ITYPE
+        DW EXIT
+
+PUBLIC DOTCOLD
+
+;Z COLD     --        set user area to latest application 
+    HEADER  COLD,4,'COLD',DOCOLON
+      DW APPU0,U0,NINIT,ITOD  ; use application user area
+      DW INFOC,VARBOT,lit,0x20,ITOD  ; use application variable area
+      DW APP,FETCH,EXECUTE ; AUTOSTART Application
+      DW ABORT
+
+PUBLIC COLDIP ; used to init IP register while testing.
+COLDIP   equ COLD+2
+
+;Z FACTORY     --      set user area to plain kernel
+;   UINIT U0 #INIT I->D SAVE   init user area
+;   ABORT ;
+    HEADER  FACTORY,7,'FACTORY',DOCOLON
+        DW UINIT,U0,NINIT,ITOD    ; store kernel user area table to user area
+        DW VARBOT,lit,(VAR_SIZE)*2,ZERO,FILL  ; set variables to ZERO
+        DW SAVE
+        DW DOTVER
+        DW EXIT
+
+PUBLIC FACTORYIP ; used to init IP register.
+FACTORYIP equ FACTORY+2
+
+
+;U PROFUSE  -- adr        address of production fuse.
+; constant PROFUSEADR
+    HEADER  PROFUSEADR,7,'PROFUSE',DOCON
+        DW PROFUSE  
+        
+;U 4E4THPRO  --           save app and blow production fuse.
+; SAVE ZERO PROFUSEADR VEC! ;
+    HEADER  FORTHPRO,8,'4E4THPRO',DOCOLON
+        DW SAVE,ZERO,PROFUSEADR,VECSTORE
+        DW EXIT
+
+;U WIPE    --            erase flash but not kernel, reset user area.
+; PROFUSEADR @ IF WIPE ELSE COLD TEHN ;
+    HEADER  WIPE,4,'WIPE',DOCOLON
+        DW PROFUSEADR,FETCH,qbran
+        DEST wipe1
+        DW PARENWIPE
+wipe1:  DW COLD
+
+;U (WIPE)    --      erase flash but not kernel, reset user area.
+; MEMBOT USERMEM FLERASE
+; FACTORY ." Wiped" ABORT ;
+    HEADER  PARENWIPE,6,'(WIPE)',DOCOLON
+        DW MEMBOT,lit,USERFLASHEND-USERFLASHSTART+1,FLERASE
+        DW FACTORY 
+DW XISQUOTE
+        DB (wipmsg1-wipmsg0)
+wipmsg0:DB ' Wiped'
+        EVEN
+wipmsg1:DW ITYPE
+        DW ABORT      ; ABORT never returns
+

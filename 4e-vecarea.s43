@@ -1,0 +1,118 @@
+; write vector area ===================================================
+
+EXTERN resetvec,reset
+
+; write vector area - or any flash location.  !! dangerous!!
+;Z VEC!        x adr  --     store x to top most segment
+        HEADER  VECSTORE,4,'VEC!',DOCODE
+        MOV     @PSP+,W         ; get data to write
+        BIT     #1,TOS
+        JNZ     IST_X2          ; if not even address, do not write
+        CMP     @TOS,W
+        JZ      IST_X2          ; if memory is desired value, do not write
+        PUSH sr
+        DINT                    ; Disable interrupts
+        MOV #FWKEY,&FCTL3       ; Clear LOCK
+        MOV #FWKEY+WRT,&FCTL1   ; Enable write
+        MOV     W,0(TOS)        ; Write word to flash location
+        MOV #FWKEY,&FCTL1       ; Done. Clear WRT.
+        MOV #FWKEY+LOCK,&FCTL3  ; Set LOCK
+;        EINT                    ; Enable interrupts
+        POP sr
+IST_X2: MOV     @PSP+,TOS       ; pop new TOS
+        NEXT
+
+;U (VECWIPE)    --      erase top segment in flash
+    HEADER  PARENVECWIPE,9,'(VECWIPE)',DOCODE
+;        DW lit,intseg,lit,1,FLERASE  ;geht so nicht, ist geschützt
+;        DW EXIT
+        MOV #intseg,W
+        PUSH sr
+        DINT                    ; Disable interrupts
+        MOV #FWKEY,&FCTL3       ; Clear LOCK
+        MOV #FWKEY+ERASE,&FCTL1 ; Enable segment erase
+        MOV     #-1,0(W)        ; Dummy write in segment to erase
+        MOV #FWKEY,&FCTL1       ; Done. Clear erase command.
+        MOV #FWKEY+LOCK,&FCTL3  ; Done, set LOCK
+        EINT                    ; Enable interrupts
+        POP sr
+        NEXT
+
+
+;U VECWIPE    --      erase ISR flash, set reset vector = reset to boot 4e4th.
+; (VECWIPE)  resetvector RESETADR VEC! ;
+    HEADER  VECWIPE,7,'VECWIPE',DOCOLON
+        DW PARENVECWIPE
+        DW lit,reset,resetvec,VECSTORE
+        DW EXIT
+        
+;U VECSAVE    --      save all vectors to infoD  mk
+;  InfoD $40 FLERASE   vecbot infoD $20 D->I ;
+    HEADER  VECSAVE,7,'VECSAVE',DOCOLON
+        DW INFOD,lit,0x40,FLERASE
+        DW VECBOT,INFOD,lit,0x20,DTOI 
+        DW EXIT
+
+;U VECRESTORE   --    unconditional restore all saved vectors.
+;  vecwipe    infoD vecbot $32 D->I ;
+    HEADER  VECRESTORE,10,'VECRESTORE',DOCOLON
+        DW VECWIPE
+        DW INFOD,VECBOT,lit,0x1E,DTOI ; dont touch reset vector. 
+        DW EXIT
+
+/*
+;U VECBACK    --      write back of vectors: dont overwrite newer ones.  
+;  $20 0 DO infoD i + @    vecbot i + @  $FFFF =
+;  IF  vecbot i + vec! ELSE drop THEN  2 +LOOP ;
+    HEADER  VECBACK,7,'VECBACK',DOCOLON
+        DW lit,0x20,ZERO,xdo 
+vback1: DW INFOD,II,PLUS,FETCH
+        DW VECBOT,II,PLUS,FETCH,lit,0xFFFF,EQUAL
+        DW qbran
+        DEST vback2
+        DW VECBOT,II,PLUS,VECSTORE
+        DW bran
+        DEST vback3
+vback2: DW DROP
+vback3: DW lit,2,xplusloop
+        DEST vback1
+        DW EXIT
+*/
+
+;U VECBACK    --      write back of vectors: dont overwrite newer ones.  
+;  $20 0 DO  vecbot i + @ FFFF =
+;  IF  infoD i + @   vecbot i + vec! THEN  2 +LOOP ;
+    HEADER  VECBACK,7,'VECBACK',DOCOLON
+        DW lit,0x20,ZERO,xdo 
+vback1: DW VECBOT,II,PLUS,FETCH,lit,0xFFFF,EQUAL
+        DW qbran
+        DEST vback2
+        DW INFOD,II,PLUS,FETCH
+        DW VECBOT,II,PLUS,VECSTORE
+vback2: DW lit,2,xplusloop
+        DEST vback1
+        DW EXIT
+
+;U INTERRUPT  isr iv --      store ISR address to interrupt vector address 
+/* Store address of interrupt service routine to interrupt vector address, 
+keep all other vectors. ´This is a slow flash operation. 
+Saves all vectors to infoD, wipes vectors to FFFF, 
+writes iv and then writes back the other vector values. */
+;    vecsave vecwipe vec! vecback ;
+        HEADER  INTERRUPT,9,'INTERRUPT',DOCOLON
+        DW VECSAVE,VECWIPE,VECSTORE,VECBACK
+        DW EXIT 
+
+; -----------------------------------------------------
+;U PROFUSE  -- adr        address of production fuse.
+; constant PROFUSEADR
+    HEADER  PROFUSEADR,7,'PROFUSE',DOCON
+        DW PROFUSE  
+        
+;U 4E4THPRO  --           save app and blow production fuse.
+; SAVE ZERO PROFUSEADR VEC! ;
+    HEADER  FORTHPRO,8,'4E4THPRO',DOCOLON
+        DW SAVE,ZERO,PROFUSEADR,VECSTORE
+        DW EXIT
+
+; finis

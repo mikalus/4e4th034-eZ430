@@ -1,0 +1,50 @@
+; ----------------------------------------------------------------------
+; 4e4th is a Forth based on CamelForth 
+; for the Texas Instruments MSP430 
+; 
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+; 
+; See LICENSE TERMS in Brads file readme.txt as well.
+
+; ----------------------------------------------------------------------
+; 4e-infoBG2553.s43 - user area is saved to infoB - MSP430G2553
+; ----------------------------------------------------------------------
+
+#include "msp430.h"                     ; #define controlled include file
+#include "4e-CF430G2553forth.h"             ; header macros and register defs
+
+EXTERN RAMDICT,lastword,NOOP,DOTCOLD,DOKEY,DOEMIT,DOCR
+PUBLIC infoB,AppU0,crcval
+
+RSEG INFOB
+
+; uarea in infoB   -   holds saved user area table
+
+infoB:
+
+crcval: DW 0FFFFh       ; CRC of user dictionary and infoB user area
+AppU0:  
+        DW 0,0,10,0     ; reserved,>IN,BASE,STATE  ; start in HEX  mk
+        DW RAMDICT      ; DP
+        DW 0,0          ; SOURCE init'd elsewhere
+        DW lastword     ; LATEST
+        DW 0,0          ; HP,LP init'd elsewhere
+        DW USERFLASHSTART   ; IDP
+        DW 0            ; NEWEST not init'd
+        DW DOTCOLD      ; APP vector; default is .COLD
+        DW -1           ; CAPS flag; default is TRUE
+        DW DOKEY        ; KEY vector
+        DW DOEMIT       ; EMIT vector
+        DW DOCR         ; CR vector 
+END

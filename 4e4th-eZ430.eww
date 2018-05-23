@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<workspace>
+  <project>
+    <path>$WS_DIR$\4e4th-aLP430.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\..\..\..\Eigene Temps\msp430fr2433.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\uMMT-for2016jun11.ewp</path>
+  </project>
+  <batchBuild/>
+</workspace>
+
+

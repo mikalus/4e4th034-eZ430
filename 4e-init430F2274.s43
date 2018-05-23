@@ -1,0 +1,212 @@
+; ----------------------------------------------------------------------
+; 4e4th is a Forth based on CamelForth 
+; for the Texas Instruments MSP430 
+; 
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+; 
+; See LICENSE TERMS in Brads file readme.txt as well.
+
+; ----------------------------------------------------------------------
+; 4e-init430F2274.s43 - reset interupt service routine - MSP430F2274
+;  eZ430-RF2500T Target Board
+; ----------------------------------------------------------------------
+
+; CamelForth RAM memory map:
+;   UP          User Pointer, 2 bytes
+;   UAREA       User area, 32 bytes
+;   UAREA+20h   HOLD area, 40 bytes, grows down from end
+;   UAREA+48h   PAD buffer, 88 bytes, must follow HOLD area
+;   UAREA+A0h   Parameter stack, 128 B, grows down from end
+;   UAREA+120h  Return stack, 128 B, grows down from end
+;   UAREA+1A0h  TIB Terminal Input Buffer, 88 bytes
+
+; Note all must be word-aligned.
+; See also the definitions of U0, S0, and R0 in the "system variables &
+; constants" area.  A task w/o terminal input requires 200h bytes.
+; Double all except TIB and PAD for 32-bit CPUs.
+
+
+; RAM map
+; name     celles  comment
+                   ; -----
+;UAREA_SIZE  = 16   ; UAREA 
+UAREA_SIZE  = 18   ; UAREA 
+                   ; -----
+                   ; | LSTACK: leave stack 
+                   ; | grows up 
+                   ; | 
+                   ; V
+                   ;   
+                   ; ^
+                   ; |
+                   ; | grows down
+PSTACK_SIZE = 54   ; | PSTACK: top of parameter stack area. 
+                   ; -----
+                   ;   
+                   ; ^
+                   ; |
+                   ; | grows down
+RSTACK_SIZE = 54   ; | RSTACK: top of return stack area. 
+
+;          aligned buffers only required for terminal tasks.
+; names    bytes  
+                   ; ^
+                   ; |
+                   ; | grows down
+HOLD_SIZE   = 34   ; | HOLDAREA: 
+                   ; -----
+PAD_SIZE    = 84   ; scratch pad
+                   ; -----
+TIB_SIZE    = 84   ; terminal input buffer
+                   ; -----
+                   ; <-- HERE
+VAR_SIZE    = 16   ; variable area SAVEed in INFO-C
+                   ; -----
+                   
+
+;        PUBLIC  UP,UAREA,PADAREA,LSTACK,PSTACK,RSTACK
+        PUBLIC  PADAREA,LSTACK,PSTACK,RSTACK
+        PUBLIC  TIBAREA,TIB_SIZE,UAREA_SIZE,VARAREA,VAR_SIZE
+        PUBLIC  reset,main
+        PUBLIC  UAREA,UP,cor
+        PUBLIC  ROMDICT,RAMDICT
+
+        EXTERN  lastword,fenceadr,NOOP
+;        EXTERN  runmagic,runsmal
+        EXTERN  lastword
+        EXTERN  COLDIP,BOOTIP
+;        EXTERN  DEBUGIP
+        
+        RSEG    DATA16_Z  ; uninitialized RAM segment
+
+; RAM user area    -   system label, holds active user area 
+; initialiesed by BOOT
+; see hilvl UINIT
+
+UP:       DS16 1
+UAREA:    DS16 UAREA_SIZE
+
+; cor    -     cause of reset variable, copy of IFG1
+cor:      DS16 1
+
+; LSTACK   -   start leave stack
+LSTACK:
+          DS16  PSTACK_SIZE ; allocate parameter stack
+; PSTACK   -   top of parameter stack          
+PSTACK:                     
+          DS16  RSTACK_SIZE ; allocate return stack
+; RSTACK   -   top of return stack 
+RSTACK:                     
+          DS8   HOLD_SIZE   ; allocate hold area
+; HOLDAREA   -   top of hold adrea
+HOLDAREA:
+
+; PADAREA    -   start scratch pad; must follow HOLDAREA
+PADAREA:  DS8   PAD_SIZE
+
+; TIBAREA    -   start Terminal Input Buffer
+TIBAREA:  DS8   TIB_SIZE
+
+/*
+; WASAREA    -    4 variables for Assembler WAS
+WASAREA:
+PUBLIC X1ADR,X2ADR,OPCADR,EXTADR
+X1ADR:  DS16 1
+X2ADR:  DS16 1
+OPCADR: DS16 1
+EXTADR: DS16 1
+*/
+
+; RAMDICT    -   end of system areas, start of free RAM
+RAMDICT:
+
+; Variable Area is free RAM. 
+; But it is saved to INFO-C when you SAVE an app.
+; So your app will start with your variables set.
+; VARAREA    -   start Variable Area
+VARAREA:  DS16   VAR_SIZE
+
+; ----------------------------------------------------------------------
+; POWER ON RESET AND INITIALIZATION
+
+#include "msp430F2274.h"            ; #define controlled include file
+#include "4e-CF430F2274forth.h"     ; header macros and register defs
+
+        RSEG CODE          ; place init in 'CODE' segment
+
+; ----------------------------------------------------------------------
+; MSP430F2274 Initialize system 
+; (original: FR_EXP.lst and some of mecrisp (Koch)
+; for MSP-LaunchPad 
+
+; main   -   start_init, reset service routine
+main:             ; Debugger requires the 'main' symbol. 
+reset:            ; forth requires the reset symbol.
+start_init:       ; I require the start_init symbol. ;-)
+
+    MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
+
+    MOV.B   &IFG1,&cor      ; save IFG1 to cor low byte
+    MOV.B   #0,&(cor+1) ; clr hi byte
+
+    mov.b   &CALBC1_8MHZ, &BCSCTL1   ; Set DCO
+    mov.b   &CALDCO_8MHZ, &DCOCTL    ; to 8 MHz.
+
+; Enable ports
+    BIS.B   #BIT4,&P3SEL ; select second function of P3.4 = UCA0TXD ...
+    BIS.B   #BIT4,&P3DIR ; ... so make it output.
+    BIS.B   #BIT5,&P3SEL ; select second function of P3.5 = UCA0RXD ...
+    BIC.B   #BIT5,&P3DIR ; ... so make it input.
+
+; Configure UART (Koch) 
+    bis.b   #UCSSEL_2,&UCA0CTL1     ;db2 SMCLK
+    mov.b   #65,&UCA0BR0            ;db3 8MHz 9600 Insgesamt 833
+    mov.b   #3,&UCA0BR1             ;db4 8MHz 9600
+    mov.b   #UCBRS_2,&UCA0MCTL      ;db5 Modulation UCBRSx = 2
+    bic.b   #UCSWRST,&UCA0CTL1      ;db6 **Initialize USCI state machine**
+
+    MOV.B   #'A',&UCA0TXBUF  ; test emit
+
+;    clr.b   &IE1 ; Lösche die Interrupt-Flags von Oscillator Fault,
+;                 ; NMI, Flash-Violation.
+    bic.b   #OFIE,&IE1
+    mov.w   #FWKEY, &FCTL1           ; Schreib- & Loeschzugriffe ausgeschaltet.
+    mov.w   #FWKEY|FSSEL_1|19, &FCTL2 ; MCLK/20 for Flash Timing Generator
+
+    mov.w   #FWKEY+LOCK, &FCTL3      ; Lock Flash memory against writing
+
+; setup forth registers
+    MOV     #RSTACK,SP              ; set up return stack
+    MOV     #PSTACK,PSP             ; set up parameter stack
+    MOV     #UAREA,&UP              ; initial user pointer
+    MOV     #0,TOS                  ; clear top of pstack
+    MOV     #COLDIP,IP              ; set IP of starting word
+    
+;    MOV     #COLDIP,IP              ; set IP of starting word
+    MOV     #BOOTIP,IP              ; set IP of starting word 
+;    MOV     #DEBUGIP,IP              ; set IP of starting word 
+
+    NEXT ; enter virtual forth maschine now
+
+init_end:
+
+; ----------------------------------------------------------------------
+; DEFAULT INTERRUPT HANDLER nullirq
+          PUBLIC isr_null
+isr_null: DINT 
+          RETI 
+isr_null_end: 
+
+ROMDICT:
+          END

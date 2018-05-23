@@ -1,0 +1,512 @@
+; This small 430 assembler produces code at IHERE
+; WAS means Willems ASsembler for MSP430 and 4E4th
+
+; Complete security by checking for valid registers
+; and extended checking on addressing errors
+; 4 nibbles form dual opcode | instr. | S-reg. | modes | D-reg.  |
+; Single opcode              | 9-bit instruc.   | mode | D/S-reg |
+; Conditionals               | 6-bit instr | 10-bit rel. branch |
+; Only basic opcodes: 03DE bytes 
+; With corrected and shrinked an control structs: 05C0 bytes
+; Together with DAS6.F only 0A16 bytes
+; When used together with DAS, first compile DAS !!!!
+; -----------------------------------------------------------------------------
+; forth working = ;mk
+; 4WAS is assembling correct binary = ;mk_4wasOK
+
+; todo
+; #0 .. #-1  ok?
+
+; -----------------------------------------------------------------------------
+
+EXTERN X1ADR,X2ADR,OPCADR,EXTADR ;  made in init file 
+
+    HEADER XONE,2,'X1',DOCON ;mk
+         DW X1ADR
+    HEADER XTWO,2,'X2',DOCON ;mk
+         DW X2ADR
+    HEADER OPC,3,'OPC',DOCON ;mk
+         DW OPCADR
+    HEADER EXT,3,'EXT',DOCON ;mk
+         DW EXTADR
+
+;U XTRA      --    increment ext
+;         1 ext +! ;
+    HEADER XTRA,4,'XTRA',DOCOLON ;mk
+	  DW lit,0x1,EXT,PLUSSTORE
+	  DW EXIT
+
+;U SAS      --    init assembler variables
+;         zero opc !  zero ext ! ;
+    HEADER SAS,3,'SAS',DOCOLON  ;mk
+	  DW ZERO,OPC,STORE
+	  DW ZERO,EXT,STORE
+	  DW EXIT
+
+; ----- addressing
+;  00 CONSTANT pc   01 CONSTANT rp    02 CONSTANT sr    03 CONSTANT cg
+;  04 CONSTANT sp   05 CONSTANT ip    06 CONSTANT w     07 CONSTANT tos
+;  08 CONSTANT r8   09 CONSTANT r9    0A CONSTANT r10   0B CONSTANT r11
+;( 0C CONSTANT r12  0D CONSTANT r13   0E CONSTANT r14 ) 0F CONSTANT r15
+;( 10 constant x} ) 20 constant )     30 constant )+    40 constant _#
+
+;In the following constants index w stands for a WAS definition.
+
+    HEADER  PCw,2,'PC',DOCON  ;mk
+        DW 0x00
+    HEADER  RPw,2,'RP',DOCON  ;mk
+        DW 0x01
+    HEADER  SRw,2,'SR',DOCON  ;mk
+        DW 0x02
+    HEADER  CGw,2,'CG',DOCON  ;mk
+        DW 0x03
+    
+    HEADER  SPw,2,'SP',DOCON  ;mk
+        DW 0x04
+    HEADER  IPw,2,'IP',DOCON  ;mk
+        DW 0x05
+    HEADER  Ww,1,'W',DOCON  ;mk
+        DW 0x06
+    HEADER  TOSw,3,'TOS',DOCON  ;mk
+        DW 0x07
+
+    HEADER  R8w,2,'R8',DOCON  ;mk
+        DW 0x08
+    HEADER  R9w,2,'R9',DOCON  ;mk
+        DW 0x09
+    HEADER  R10w,3,'R10',DOCON  ;mk
+        DW 0x0A
+    HEADER  R11w,3,'R11',DOCON  ;mk
+        DW 0x0B
+        
+;    HEADER  R12w,2,'R12',DOCON
+;        DW 0x0C
+;    HEADER  R13w,2,'R13',DOCON
+;        DW 0x0D
+;    HEADER  R14w,3,'R14',DOCON
+;        DW 0x0E
+    HEADER  R15w,3,'R15',DOCON  ;mk
+        DW 0x0F
+
+;    HEADER  XPARENw,2,'X)',DOCON
+;        DW 0x10
+    HEADER  RIGHTPARENw,1,')',DOCON  ;mk
+        DW 0x20
+    HEADER  RIGHTPARENPLUSw,2,')+',DOCON  ;mk
+        DW 0x30
+    HEADER  SHARPw,2,'_#',DOCON    ;mk
+    ; one # would be in conflicting with "sharp" in forth.
+        DW 0x40
+
+; X)    x R -- R m     Save extra data to help variables x1 and x2
+;   >r  ext @ 0= if    x1 !  r@ cg <> if xtra then
+;                else  x2 !  xtra  then  r>  10 ; (is same as original ;mk)
+
+    HEADER  XRIGHTPARENw,2,'X)',DOCOLON ;mk //wozu ist x) gut?//
+        DW TOR,EXT,FETCH,ZEROEQUAL,qbran 
+        DEST  XPR1
+        DW XONE,STORE,RFETCH,CGw,NOTEQUAL,qbran 
+        DEST  XPR2
+        DW XTRA,bran
+        DEST  XPR2
+XPR1:   DW XTWO,STORE,XTRA
+XPR2:   DW RFROM,lit,0X10
+        DW EXIT
+
+; ?ADDR    m m# -- m   error if m# < m (do not compile backwards)
+; ?addr  over u< abort" Addr err" ;
+    HEADER  QADDR,5,'?ADDR',DOCOLON ;mk
+        DW OVER,ULESS,XISQUOTE
+        DB 9,'Addr err '
+        DW QABORT,EXIT
+
+; ?REG    R --    error if Rn > 15 (MCU has no such registers)
+;    r15 u> abort" Reg err" ;
+    HEADER  QREG,4,'?REG',DOCOLON ;mk
+        DW R15w,UGREATER,XISQUOTE
+        DB 7,'Reg err'
+        DW QABORT,EXIT
+
+; #4       -- $2 $20 
+;     sr ) ;
+    HEADER  SHARP4,2,'#4',DOCOLON
+        DW SRw,RIGHTPARENw,EXIT
+
+; #8       -- $2 $30
+;     sr )+ ;
+    HEADER  SHARP8,2,'#8',DOCOLON
+        DW SRw,RIGHTPARENPLUSw,EXIT
+        
+; &       --                ???
+;     sr x) ;
+    HEADER  UNDD,1,'&',DOCOLON ;???
+        DW SRw,XRIGHTPARENw,EXIT
+        
+; #0       -- 
+;     cg ;
+    HEADER  SHARPZERO,2,'#0',DOCOLON
+        DW CGw,EXIT
+
+; #1       -- 
+;     zero cg x) ;
+    HEADER  SHARPONE,2,'#1',DOCOLON
+        DW ZERO,CGw,XRIGHTPARENw,EXIT
+
+; #2       -- 
+;     cg ) ;
+    HEADER  SHARPTWO,2,'#2',DOCOLON
+        DW CGw,RIGHTPARENw,EXIT
+
+; #-1       -- 
+;     cg )+ ;
+    HEADER  SHARPMINUSONE,3,'#-1',DOCOLON
+        DW CGw,RIGHTPARENPLUSw,EXIT
+
+; .B       -- 
+;     40 opc ! ;
+    HEADER  DOTB,2,'.B',DOCOLON ;mk
+        DW lit,0x40,OPC,STORE,EXIT
+
+; Flag must be true when Sdata is used for 2 operand opcodes
+; ( # of 4WAS is _# now !! So has to be SHARPw and not NUM))
+; Sdata  ms flag -- 
+;   >r  dup r15 u> if  \ Mode data?
+;      3 depth ?addr drop  \ Not enough data?
+;      dup _# = if  drop  x1 !  xtra  pc )+  then \ Handle ##
+;      )+ ?addr  ( R m )
+;   else
+;      zero      ( R 0 )
+;   then
+;   over ?reg  r> if  swap ><  then  or opc +! ;
+    HEADER  SDATA,5,'SDATA',DOCOLON
+        DW TOR,DUP,R15w,UGREATER,qbran
+        DEST  SDATA3
+        DW lit,0x3,DEPTH,QADDR,DROP
+        DW DUP,SHARPw,EQUAL,qbran
+        DEST SDATA2
+        DW DROP,XONE,STORE,XTRA,PCw,RIGHTPARENPLUSw
+SDATA2  DW RIGHTPARENPLUSw,QADDR,bran
+        DEST SDATA4
+SDATA3  DW ZERO
+SDATA4  DW OVER,QREG,RFROM,qbran
+        DEST  SDATA6
+SDATA5  DW SWAP,SWAPBYTES
+SDATA6  DW ORR,OPC,PLUSSTORE
+        DW EXIT
+
+; SDdata    ms md -- 
+;   dup r15 u> 
+;       if 
+;          over ?reg  10 ?addr  8 * or  
+;       else  
+;          dup ?reg 
+;       then
+;   opc +!  -1 Sdata ;
+    HEADER  SDDATA,6,'SDDATA',DOCOLON
+        DW DUP,R15w,UGREATER,qbran
+        DEST SDDATA2
+        DW OVER,QREG,lit,0x10,QADDR,lit,0x8,STAR,ORR,bran
+        DEST SDDATA3
+SDDATA2 DW DUP,QREG
+SDDATA3 DW OPC,PLUSSTORE,lit,0xFFFF,SDATA
+        DW EXIT
+        
+; OPC,     -- 
+;   opc @ i,  ext @ if  x1 @ i,  then
+;   ext @ 2 and if  x2 @ i,  then
+;\   opc @ u.  ext @ if  x1 @ u.  then \ For debugging only
+;\   ext @ 2 and if  x2 @ u.  then
+;   Sas ;
+    HEADER  OPCCOMMA,4,'OPC,',DOCOLON
+        DW OPC,FETCH,ICOMMA,EXT,FETCH,qbran
+        DEST OPCC1
+        DW XONE,FETCH,ICOMMA
+OPCC1   DW EXT,FETCH,lit,0x2,ANDD,qbran
+        DEST OPCC2
+        DW XTWO,FETCH,ICOMMA
+OPCC2   ; DW SAS,EXIT 
+        ; uncomment for debugging: 
+        DW OPC,FETCH,UDOT,EXT,FETCH,qbran
+        DEST OPCC1x
+        DW XONE,FETCH,UDOT
+OPCC1x  DW EXT,FETCH,lit,0x2,ANDD,qbran
+        DEST OPCC2x
+        DW XTWO,FETCH,UDOT
+OPCC2x  DW SAS,EXIT 
+
+; 1op   --
+; <builds i, does> @ opc +! zero Sdata opc, ;
+;    HEADER  ONEOP,0x3,'1OP,',DOCOLON
+;        DW BUILDS,ICOMMA,XDOES
+;        MOV #dodoes,PC      ; long direct jump to DODOES
+;        DW FETCH,OPC,PLUSSTORE,ZERO,SDATA,OPCCOMMA
+;        DW EXIT
+;Notiz: Das geht so nicht da forth damit ja compiliert,
+;hier im die Worte aber schon assembliert werden sollen. 
+
+; RETI  -- 
+;  1300 i, ;
+    HEADER  RETIw,5,'RETI,',DOCOLON ;mk
+        DW lit,0x1300,ICOMMA,EXIT
+ 
+; 1op   --     HEDLESS DOES> part of a word
+;  opc +! zero Sdata opc, ;
+    HEADLESS  ONEOP,DOCOLON ;mk
+        DW OPC,PLUSSTORE,ZERO,SDATA,OPCCOMMA
+        DW EXIT
+
+;   1000 1op rrc    1080 1op swpb   1100 1op rra
+;   1180 1op sxt    1200 1op push   1280 1op call
+
+    HEADER  RRCw,3,'RRC',DOCOLON ;mk
+        DW lit,0x1000,ONEOP,EXIT
+    HEADER  SWPBw,4,'SWPB',DOCOLON ;mk
+        DW lit,0x1080,ONEOP,EXIT
+    HEADER  RRAw,3,'RRA',DOCOLON ;mk
+        DW lit,0x1100,ONEOP,EXIT
+    HEADER  SXTw,3,'SXT',DOCOLON ;mk
+        DW lit,0x1180,ONEOP,EXIT
+    HEADER  PUSHw,4,'PUSH',DOCOLON ;mk
+        DW lit,0x1200,ONEOP,EXIT
+    HEADER  CALLw,4,'CALL',DOCOLON ;mk
+        DW lit,0x1280,ONEOP,EXIT
+
+; 2op   --
+; <builds i, does> @ opc +! SDdata opc, ;
+;    HEADER  TWOOP,3,'2OP,',DOCOLON
+;        DW BUILDS,ICOMMA,XDOES
+;        MOV #dodoes,PC      ; long direct jump to DODOES
+;        DW FETCH,OPC,PLUSSTORE,SDDATA,OPCCOMMA
+;        DW EXIT
+;Notiz: Das geht so nicht da forth damit ja compiliert,
+;hier im die Worte aber schon assembliert werden sollen. 
+
+; 2op   --     HEDLESS DOES> part of a word
+; opc +! SDdata opc, ;
+    HEADER  TWOOP,3,'2OP,',DOCOLON
+        DW OPC,PLUSSTORE,SDDATA,OPCCOMMA
+        DW EXIT
+
+;   4000 2op mov    5000 2op add    6000 2op addc   7000 2op subc
+    HEADER  MOVw,3,'MOV',DOCOLON ;mk
+        DW lit,0x4000,TWOOP,EXIT
+    HEADER  ADDw,3,'ADD',DOCOLON
+        DW lit,0x5000,TWOOP,EXIT
+    HEADER  ADDCw,4,'ADDC',DOCOLON
+        DW lit,0x6000,TWOOP,EXIT
+    HEADER  SUBCw,4,'SUBC',DOCOLON
+        DW lit,0x7000,TWOOP,EXIT
+   
+;   8000 2op sub    9000 2op cmp    A000 2op dadd   B000 2op bit
+    HEADER  SUBw,3,'SUB',DOCOLON
+        DW lit,0x8000,TWOOP,EXIT
+    HEADER  CMPw,3,'CMP',DOCOLON
+        DW lit,0x9000,TWOOP,EXIT
+    HEADER  DADDw,4,'DADD',DOCOLON
+        DW lit,0xA000,TWOOP,EXIT
+    HEADER  BITw,3,'BIT',DOCOLON
+        DW lit,0xB000,TWOOP,EXIT
+
+;   C000 2op bic    D000 2op bis    E000 2op xor>   F000 2op and>
+    HEADER  BICw,3,'BIC',DOCOLON
+        DW lit,0xC000,TWOOP,EXIT
+    HEADER  BISw,3,'BIS',DOCOLON
+        DW lit,0xD000,TWOOP,EXIT
+    HEADER  XORGREATERw,4,'XOR>',DOCOLON
+        DW lit,0xE000,TWOOP,EXIT
+    HEADER  ANDGREATERw,4,'AND>',DOCOLON
+        DW lit,0xF000,TWOOP,EXIT
+
+; \ Macros
+; : next  ip )+ w mov   w )+ pc mov ;
+    HEADER  NEXTw,4,'NEXT',DOCOLON
+        DW IPw,RIGHTPARENPLUSw,Ww,MOVw
+        DW Ww,RIGHTPARENPLUSw,PCw,MOVw
+        DW EXIT
+
+
+/**************************************************************
+; (Conditions as defined in WAS4.f --> see end of file)
+
+; 4WAS.f dedfinitions:
+; Conditions, we are not satisfied with these names so they
+; may change in the next release of WAS.F 
+;   2000 CONSTANT 0=?      2400 CONSTANT 0<>?    2800 CONSTANT cs?
+;   2C00 CONSTANT cc?      3000 CONSTANT 0>?     3400 CONSTANT <?
+;   3800 CONSTANT >=?      3C00 CONSTANT never   \ *** pos?
+;\  2800 CONSTANT u>=?     2C00 CONSTANT u<?
+
+;   2000 CONSTANT 0=?      2400 CONSTANT 0<>?    2800 CONSTANT cs?
+    HEADER  ZEROEQUALQw,3,'0=?',DOCON
+        DW 0x2000
+    HEADER  ZERONOTQw,4,'0<>?',DOCON
+        DW 0x2400
+    HEADER  CSQw,3,'CS?',DOCON
+        DW 0x2800
+   
+;   2C00 CONSTANT cc?      3000 CONSTANT 0>?     3400 CONSTANT <?
+    HEADER  CCQw,3,'CC?',DOCON
+        DW 0x2C00
+    HEADER  ZEROGREATERQw,3,'0>?',DOCON
+        DW 0x3000
+    HEADER  LESSQw,2,'<?',DOCON
+        DW 0x3400
+
+;   3800 CONSTANT >=?      3C00 CONSTANT never   \ *** pos?
+    HEADER  GREATEREQUALw,3,'>=?',DOCON
+        DW 0x2C00
+    HEADER  NEVERw,5,'NEVER',DOCON
+        DW 0x3000
+**************************************************************/
+
+
+; <offset>     = masker for offset -> then and until
+; never        = cond for always.jump -> ahead, again
+;              = masker for condition -> see ?cond
+
+; CALC  a1 a2 -- opc 
+; cell+  - 2/ 3ff and or ; \ *** CELL+
+    HEADER  CALC,4,'CALC',DOCOLON
+        DW CELLPLUS,MINUS,TWOSLASH,lit,0X03FF,ANDD,ORR
+        DW EXIT
+
+; ?PAIR   x y -- 
+; - abort" No pair" ;
+    HEADER  QPAIR,5,'?PAIR',DOCOLON
+        DW MINUS,XISQUOTE
+        DB 7,'No Pair'
+        DW QABORT,EXIT
+
+
+; ?COND  cond -- cond 
+; dup c3ff and  abort" Need cond" ;
+    HEADER  QCOND,5,'?COND',DOCOLON
+        DW DUP,lit,0XC3FF,ANDD,XISQUOTE
+        DB 9,'Need cond'
+        DW QABORT,EXIT
+
+; IF,    cond -- ifcond ifloc
+; ?cond  66 or  ihere  cell iallot ;
+    HEADER  IFCOMMA,3,'IF,',DOCOLON
+        DW QCOND,lit,0X66,ORR,IHERE,CELL,IALLOT
+        DW EXIT
+
+; BEGIN,   -- beginloc begin#
+; ihere  77 ;
+    HEADER  BEGINCOMMA,6,'BEGIN,',DOCOLON
+        DW IHERE,lit,0X77
+        DW EXIT
+
+; THEN,   ifcond ifloc -- 
+;   >r  dup 00ff and  66 ?pair
+;   never and  ?cond  ihere r@ calc  r> i! ;
+    HEADER  THENCOMMA,5,'THEN,',DOCOLON
+        DW TOR,DUP,lit,0X00FF,ANDD,lit,0x66,QPAIR
+        DW NEVERw,ANDD,QCOND,IHERE,RFETCH,CALC,RFROM,ISTORE
+        DW EXIT
+
+; UNTIL,  beginloc begin# cond -- 
+;   swap 77 ?pair  ?cond  swap ihere calc  i, ;
+    HEADER  UNTILCOMMA,6,'UNTIL,',DOCOLON
+        DW SWAP,lit,0x77,QPAIR,QCOND,SWAP,IHERE,CALC,ICOMMA
+        DW EXIT
+
+; AGAIN,   --
+; never until, ;
+    HEADER  AGAINCOMMA,6,'AGAIN,',DOCOLON
+        DW NEVERw,UNTILCOMMA
+        DW EXIT
+
+; ELSE,    --
+; never if,  2swap then, ;
+    HEADER  ELSECOMMA,5,'ELSE,',DOCOLON
+        DW NEVERw,IFCOMMA,TWOSWAP,THENCOMMA
+        DW EXIT
+
+; WHILE,   --
+; if, 2swap ;
+    HEADER  WHILECOMMA,6,'WHILE,',DOCOLON
+        DW IFCOMMA,TWOSWAP
+        DW EXIT
+
+; REPEAT,   --
+; again, then, ;
+    HEADER  REPEATCOMMA,7,'REPEAT,',DOCOLON
+        DW AGAINCOMMA,THENCOMMA
+        DW EXIT
+
+; JMP    --
+; 77 again, ;  \ jump, relative addr in opcode
+    HEADER  JMPw,3,'JMP',DOCOLON
+        DW lit,0x77,AGAINCOMMA
+        DW EXIT
+
+; CODE  --
+; header  Sas  ihere cell+ i,  55 ;
+    HEADER  CODEw,4,'CODE',DOCOLON
+        DW HEADR,SAS,IHERE,CELLPLUS,ICOMMA,lit,0x55
+        DW EXIT
+
+; END-CODE  --
+; 55 ?pair ;
+    HEADER  ENDCODEw,8,'END-CODE',DOCOLON
+        DW lit,0x55,QPAIR
+        DW EXIT
+; --------------------------------------------------------
+; added from WAS4.f (28.08.2012)
+; more macros
+; : clrc  #1 sr bic ;
+    HEADER  CLRCw,4,'CLRC',DOCOLON
+        DW SHARPONE,SRw,BICw
+        DW EXIT
+
+; : -)  >r  #2 r@ sub  r> ) ;
+    HEADER  MINUSPARENw,2,'-)',DOCOLON
+        DW TOR
+        DW SHARPTWO,RFETCH,SUBw
+        DW RFROM,RIGHTPARENw
+        DW EXIT
+
+
+; WAS4.f dedfinitions:
+;\ Conditions, these version are likely to stay 
+;   2000 CONSTANT =?       2400 CONSTANT <>?     2800 CONSTANT cs?
+;   2C00 CONSTANT cc?      3000 CONSTANT pos?    3400 CONSTANT <eq?
+;   3800 CONSTANT >?       3C00 CONSTANT never
+;   2800 CONSTANT u<eq?    2C00 CONSTANT u>?
+;
+;\ <offset>     = masker for offset -> then and until
+;\ never        = cond for always.jump -> ahead, again
+;\              = masker for condition -> see ?cond
+
+;   2000 CONSTANT =?       2400 CONSTANT <>?     2800 CONSTANT cs?
+    HEADER  EQUALQw,2,'=?',DOCON
+        DW 0x2000
+    HEADER  NOTQw,3,'<>?',DOCON
+        DW 0x2400
+    HEADER  CSQw,3,'CS?',DOCON
+        DW 0x2800
+   
+;   2C00 CONSTANT cc?      3000 CONSTANT pos?    3400 CONSTANT <eg?
+    HEADER  CCQw,3,'CC?',DOCON
+        DW 0x2C00
+    HEADER  POSITIVQw,4,'POS?',DOCON
+        DW 0x3000
+    HEADER  LESSEQUALQw,4,'<EQ?',DOCON
+        DW 0x3400
+
+
+;   3800 CONSTANT >?     3C00 CONSTANT never
+    HEADER  GREATERQw,2,'>?',DOCON
+        DW 0x3800
+    HEADER  NEVERw,5,'NEVER',DOCON
+        DW 0x3C00
+
+; ALIAS:
+;   2800 CONSTANT u<eq?    2C00 CONSTANT u>?
+    HEADER  ULESSEQUALw,5,'U<EQ?',DOCON
+        DW 0x2800
+    HEADER  UGREATERQw,3,'U>?',DOCON
+        DW 0x2C00
+
+; finis

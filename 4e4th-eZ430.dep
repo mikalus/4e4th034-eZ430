@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project>
+  <fileVersion>2</fileVersion>
+  <fileChecksum>3998717275</fileChecksum>
+  <configuration>
+    <name>Debug</name>
+    <outputs>
+      <file>$PROJ_DIR$\Debug\List\4e-infoB.lst</file>
+      <file>$TOOLKIT_DIR$\inc\msp430.h</file>
+      <file>$PROJ_DIR$\4e-infoB.s43</file>
+      <file>$PROJ_DIR$\4e-eZ430.s43</file>
+      <file>$PROJ_DIR$\4e-infoC.s43</file>
+      <file>$PROJ_DIR$\4e-infoD.s43</file>
+      <file>$PROJ_DIR$\4e-init430F2274.s43</file>
+      <file>$PROJ_DIR$\4e-vecs430F2274.s43</file>
+      <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-infoD.r43</file>
+      <file>$PROJ_DIR$\4e-deps430F2274.s43</file>
+      <file>$PROJ_DIR$\4e-lnk430f2274.xcl</file>
+      <file>$PROJ_DIR$\Debug\List\4e-vecs430F2274.lst</file>
+      <file>$PROJ_DIR$\Debug\List\4e4th-eZ430.map</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-infoB.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-infoC.r43</file>
+      <file>$PROJ_DIR$\4e-core430.s43</file>
+      <file>$PROJ_DIR$\asm.s43</file>
+      <file>$TOOLKIT_DIR$\inc\msp430f2274.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-init430F2274.r43</file>
+      <file>$PROJ_DIR$\4e-CF430F2274forth.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-vecs430F2274.r43</file>
+      <file>$PROJ_DIR$\4e-vecarea.s43</file>
+      <file>$PROJ_DIR$\Debug\List\4e-infoC.lst</file>
+      <file>$PROJ_DIR$\Debug\List\4e-init430F2274.lst</file>
+      <file>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.a43</file>
+      <file>$PROJ_DIR$\4e-eZ430-RF2500.s43</file>
+      <file>$PROJ_DIR$\Debug\List\4e-infoD.lst</file>
+      <file>$PROJ_DIR$\4e-CF430G2553forth.h</file>
+      <file>$PROJ_DIR$\4e-boot-eZ430.s43</file>
+      <file>$PROJ_DIR$\Debug\List\4e-eZ430.lst</file>
+      <file>$PROJ_DIR$\4e-hilvl430.s43</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-eZ430.r43</file>
+    </outputs>
+    <file>
+      <name>$PROJ_DIR$\4e-infoB.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 14 0</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 1 18 28</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-eZ430.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 32 30</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 1 18 20 10 16 31 29</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-infoC.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 15 23</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 1 18 28</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-infoD.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 9 27</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 1 18 28</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-init430F2274.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 19 24</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 18 20</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-vecs430F2274.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 21 12</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>[ROOT_NODE]</name>
+      <outputs>
+        <tool>
+          <name>XLINK</name>
+          <file> 25 13</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\asm.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 8</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.a43</name>
+      <outputs>
+        <tool>
+          <name>XLINK</name>
+          <file> 13</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>XLINK</name>
+          <file> 11 32 14 15 9 19 21</file>
+        </tool>
+      </inputs>
+    </file>
+  </configuration>
+  <configuration>
+    <name>Release</name>
+    <outputs/>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>XLINK</tool>
+    </forcedrebuild>
+  </configuration>
+</project>
+
+

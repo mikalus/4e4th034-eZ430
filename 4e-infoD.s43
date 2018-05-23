@@ -1,0 +1,34 @@
+; ------------------------------------------------------------------------------
+; 4e4th is a Forth based on CamelForth 
+; for the Texas Instruments MSP430 
+; 
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 3 of the License, or
+; (at your option) any later version.
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+; 
+; See LICENSE TERMS in Brads file readme.txt as well.
+
+; ------------------------------------------------------------------------------
+; 4e-infoCG2553.s43 - SAVE variables to infoC - MSP430G2553
+; ------------------------------------------------------------------------------
+
+#include "msp430.h"                     ; #define controlled include file
+#include "4e-CF430G2553forth.h"             ; header macros and register defs
+
+PUBLIC infoD
+
+RSEG INFOD
+infoD:  ; Save interrupt vectors in infoD
+
+; default is 0xFFFF in every cell
+
+END
