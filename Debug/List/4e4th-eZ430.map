@@ -2,12 +2,12 @@
 #                                                                              #
 #      IAR Universal Linker V6.2.0.62                                          #
 #                                                                              #
-#           Link time     =  23/May/2018  06:18:04                             #
+#           Link time     =  23/May/2018  06:37:26                             #
 #           Target CPU    =  MSP430                                            #
 #           List file     =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debu #
 #                            g\List\4e4th-eZ430.map                            #
 #           Output file 1 =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debu #
-#                            g\Exe\4e4th-eZ430.a43                             #
+#                            g\Exe\4e4th-eZ430.hex                             #
 #                            Format: intel-extended                            #
 #           Command line  =  C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debu #
 #                            g\Obj\4e-eZ430.r43                                #
@@ -23,7 +23,7 @@
 #                            g\Obj\4e-vecs430F2274.r43                         #
 #                            -o                                                #
 #                            C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debu #
-#                            g\Exe\4e4th-eZ430.a43                             #
+#                            g\Exe\4e4th-eZ430.hex                             #
 #                            -Fintel-extended -l                               #
 #                            C:\Users\mka\Documents\GitHub\4e4th034-eZ430\Debu #
 #                            g\List\4e4th-eZ430.map                            #

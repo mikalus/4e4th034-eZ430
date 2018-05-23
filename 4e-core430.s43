@@ -31,13 +31,13 @@
 ;        MOV @IP+,W      ; 2 fetch word address into W
 ;        MOV @W+,PC      ; 2 fetch code address into PC, W=PFA
 
-;C   EXECUTE   i*x xt -- j*x   execute Forth word at 'xt'
+;C EXECUTE   i*x xt -- j*x   execute Forth word at 'xt'
         HEADER  EXECUTE,7,'EXECUTE',DOCODE
         MOV TOS,W       ; 1 put word address into W
         MOV @PSP+,TOS   ; 2 fetch new TOS
         MOV @W+,PC      ; 2 fetch code address into PC, W=PFA
 
-;Z   LIT      -- x    fetch inline literal to stack
+;Z LIT      -- x    fetch inline literal to stack
 ; This is the primtive compiled by LITERAL.
         HEADER  lit,3,'LIT',DOCODE
         SUB #2,PSP      ; 1  push old TOS..
@@ -45,7 +45,7 @@
         MOV @IP+,TOS    ; 2  fetch new TOS value
         NEXT            ; 4
 
-;C   EXIT     --            exit a colon definition
+;C EXIT     --            exit a colon definition
         HEADER  EXIT,4,'EXIT',DOCODE
         MOV @RSP+,IP    ; 2 pop old IP from return stack
         NEXT            ; 4
@@ -60,14 +60,14 @@ DOCOLON:
         MOV W,IP        ; 1 set new IP to PFA
         NEXT            ; 4
 
-;C   VARIABLE   --            define a Forth VARIABLE
+;C VARIABLE   --            define a Forth VARIABLE
 ;   CREATE CELL ALLOT ;
 ; Action of ROMable variable is the same as CREATE; it builds a
 ; constant holding the RAM address.  See CREATE in hilvl430.s43.
         HEADER VARIABLE,8,'VARIABLE',DOCOLON
         DW CREATE,CELL,ALLOT,EXIT
 
-;C   CONSTANT   --            define a Forth constant
+;C CONSTANT   --            define a Forth constant
 ;   <BUILDS  I,   Flashable Harvard model
 ;   DOES> (machine code fragment)
 ; Note that the constant is stored in Code space.
@@ -98,7 +98,7 @@ DOROM:  ; -- a-addr     ; Table in ROM: get PFA into TOS
         MOV W,TOS
         NEXT
 
-;Z   USER     n --        define user variable 'n'
+;Z USER     n --        define user variable 'n'
 ;   <BUILDS I, DOES> (machine code fragment)    Flashable model
         HEADER USER,4,'USER',DOCOLON
         DW BUILDS,ICOMMA,XDOES
@@ -151,31 +151,31 @@ dodoes: ; -- a-addr     ; 3 for MOV #DODOES,PC
 
 ; STACK OPERATIONS -------------------------------------------------------------
 
-;C   DUP      x -- x x      duplicate top of stack
+;C DUP      x -- x x      duplicate top of stack
         HEADER  DUP,3,'DUP',DOCODE 
 PUSHTOS: SUB    #2,PSP          ; 1  push old TOS..
         MOV     TOS,0(PSP)      ; 4  ..onto stack
         NEXT                    ; 4
 
-;C   ?DUP     x -- 0 | x x    DUP if nonzero
+;C ?DUP     x -- 0 | x x    DUP if nonzero
         HEADER  QDUP,4,'?DUP',DOCODE
         CMP     #0,TOS          ; 1  test for TOS nonzero
         JNZ     PUSHTOS         ; 2
 NODUP:  NEXT                    ; 4
 
-;C   DROP     x --          drop top of stack
+;C DROP     x --          drop top of stack
         HEADER  DROP,4,'DROP',DOCODE
         MOV     @PSP+,TOS       ; 2
         NEXT                    ; 4
 
-;C   SWAP     x1 x2 -- x2 x1         swap top two items
+;C SWAP     x1 x2 -- x2 x1         swap top two items
         HEADER  SWAP,4,'SWAP',DOCODE
         MOV     @PSP,W          ; 2
         MOV     TOS,0(PSP)      ; 4
         MOV     W,TOS           ; 1
         NEXT                    ; 4
 
-;C   OVER    x1 x2 -- x1 x2 x1        per stack diagram
+;C OVER    x1 x2 -- x1 x2 x1        per stack diagram
         HEADER  OVER,4,'OVER',DOCODE
         MOV     @PSP,W          ; 2
         SUB     #2,PSP          ; 2
@@ -183,7 +183,7 @@ NODUP:  NEXT                    ; 4
         MOV     W,TOS           ; 1
         NEXT                    ; 4
 
-;C   ROT    x1 x2 x3 -- x2 x3 x1       per stack diagram
+;C ROT    x1 x2 x3 -- x2 x3 x1       per stack diagram
         HEADER  ROT,3,'ROT',DOCODE
         MOV     @PSP,W          ; 2 fetch x2
         MOV     TOS,0(PSP)      ; 4 store x3
@@ -191,7 +191,7 @@ NODUP:  NEXT                    ; 4
         MOV     W,2(PSP)        ; 4 store x2
         NEXT                    ; 4
 
-;X   NIP    x1 x2 -- x2           per stack diagram
+;X NIP    x1 x2 -- x2           per stack diagram
         HEADER  NIP,3,'NIP',DOCODE
         ADD     #2,PSP          ; 1 
         NEXT                    ; 4
@@ -200,75 +200,75 @@ NODUP:  NEXT                    ; 4
 ; Das entspricht einem DROP ohne den TOS neu zu laden.
 ; cool. mk
 
-;C   >R    x -- R: -- x      push to return stack
+;C >R    x -- R: -- x      push to return stack
         HEADER  TOR,2,'>R',DOCODE
         PUSH TOS
         MOV @PSP+,TOS
         NEXT
 
-;C   R>    -- x R: x --     pop from return stack
+;C R>    -- x R: x --     pop from return stack
         HEADER  RFROM,2,'R>',DOCODE
         SUB #2,PSP      ; 2
         MOV TOS,0(PSP)    ; 4
         MOV @RSP+,TOS
         NEXT
 
-;C   R@    -- x R: x -- x     fetch from rtn stk
+;C R@    -- x R: x -- x     fetch from rtn stk
         HEADER  RFETCH,2,'R@',DOCODE
         SUB #2,PSP
         MOV TOS,0(PSP)
         MOV @RSP,TOS
         NEXT
 
-;Z   SP@  -- a-addr       get data stack pointer
+;Z SP@  -- a-addr       get data stack pointer
         HEADER  SPFETCH,3,'SP@',DOCODE
         SUB #2,PSP
         MOV TOS,0(PSP)
         MOV PSP,TOS
         NEXT
 
-;Z   SP!  a-addr --       set data stack pointer
+;Z SP!  a-addr --       set data stack pointer
         HEADER  SPSTORE,3,'SP!',DOCODE
         MOV     TOS,PSP
         MOV     @PSP+,TOS       ; 2
         NEXT
 
-;Z   RP@  -- a-addr       get return stack pointer
+;Z RP@  -- a-addr       get return stack pointer
         HEADER  RPFETCH,3,'RP@',DOCODE
         SUB #2,PSP
         MOV TOS,0(PSP)
         MOV RSP,TOS
         NEXT
 
-;Z   RP!  a-addr --       set return stack pointer
+;Z RP!  a-addr --       set return stack pointer
         HEADER  RPSTORE,3,'RP!',DOCODE
         MOV     TOS,RSP
         MOV     @PSP+,TOS       ; 2
         NEXT
 
-;X   TUCK   x1 x2 -- x2 x1 x2     per stack diagram
+;X TUCK   x1 x2 -- x2 x1 x2     per stack diagram
         HEADER  TUCK,4,'TUCK',DOCOLON
         DC16    SWAP,OVER,EXIT
 
 ; MEMORY OPERATIONS ------------------------------------------------------------
 
-;C   @       a-addr -- x   fetch cell from memory
+;C @       a-addr -- x   fetch cell from memory
         HEADER  FETCH,1,'@',DOCODE
         MOV     @TOS,TOS
         NEXT
 
-;C   !        x a-addr --   store cell in memory
+;C !        x a-addr --   store cell in memory
         HEADER  STORE,1,'!',DOCODE
         MOV     @PSP+,0(TOS)
         MOV     @PSP+,TOS
         NEXT
 
-;C   C@     c-addr -- char   fetch char from memory
+;C C@     c-addr -- char   fetch char from memory
         HEADER  CFETCH,2,'C@',DOCODE
         MOV.B   @TOS,TOS
         NEXT
 
-;C   C!      char c-addr --    store char in memory
+;C C!      char c-addr --    store char in memory
         HEADER  CSTORE,2,'C!',DOCODE
         MOV     @PSP+,W
         MOV.B   W,0(TOS)
@@ -280,7 +280,7 @@ NODUP:  NEXT                    ; 4
 ; will enable the flash, write the RAM, and then disable the flash.
 ; An FLERASE to a RAM address will merely clear that one RAM cell.
 
-;Z   FLERASE  a-addr n --     erase n bytes of flash, full segment sizes.
+;Z FLERASE  a-addr n --     erase n bytes of flash, full segment sizes.
         HEADER  FLERASE,7,'FLERASE',DOCODE
         MOV     @PSP+,W         ; get address in W
         ADD     W,TOS           ; TOS=end adrs (first unerased adrs)
@@ -334,7 +334,7 @@ FLE_X:  MOV     @PSP+,TOS
 
 ; Program Space (Flash) operators ----------------------------------------------
 
-;Z   I!        x a-addr --        store cell in Instruction memory
+;Z I!        x a-addr --        store cell in Instruction memory
         HEADER  ISTORE,2,'I!',DOCODE
         MOV     @PSP+,W         ; get data to write
         BIT     #1,TOS
@@ -369,7 +369,7 @@ IST_RAM: ; If RAM, jump here to write.  FCTL1,FCTL3,EINT are superfluous
 IST_X:  MOV     @PSP+,TOS       ; pop new TOS
         NEXT
 
-;Z   IC!        x a-addr --       store char in Instruction memory
+;Z IC!        x a-addr --       store char in Instruction memory
         HEADER  ICSTORE,3,'IC!',DOCODE
         MOV     @PSP+,W         ; get data to write
         CMP.B   @TOS,W
@@ -413,7 +413,7 @@ ICST_RAM: ; If RAM, jump here to write.  FCTL1,FCTL3,EINT are superfluous
 
 
 
-;Z   D->I     c-addr1 c-addr2 u --  move Data->Code
+;Z D->I     c-addr1 c-addr2 u --  move Data->Code
 ; Block move from Data space to Code space.  Flashable.
 ; For the MSP430, this uses a "smart" algorithm that uses word writes,
 ; rather than byte writes, whenever possible.  Note that byte reads
@@ -456,83 +456,83 @@ DTOI_X: MOV     @PSP+,TOS       ; pop new TOS
 
 ; ARITHMETIC OPERATIONS --------------------------------------------------------
 
-;C   +       n1/u1 n2/u2 -- n3/u3     add n1+n2
+;C +       n1/u1 n2/u2 -- n3/u3     add n1+n2
         HEADER  PLUS,1,'+',DOCODE
         ADD     @PSP+,TOS
         NEXT
 
-;C   +!     n/u a-addr --       add cell to memory
+;C +!     n/u a-addr --       add cell to memory
         HEADER  PLUSSTORE,2,'+!',DOCODE
         ADD     @PSP+,0(TOS)
         MOV     @PSP+,TOS
         NEXT
 
-;X   M+       d n -- d         add single to double
+;X M+       d n -- d         add single to double
         HEADER  MPLUS,2,'M+',DOCODE
         ADD     TOS,2(PSP)
         ADDC    #0,0(PSP)
         MOV     @PSP+,TOS
         NEXT
 
-;C   -      n1/u1 n2/u2 -- n3/u3    subtract n1-n2
+;C -      n1/u1 n2/u2 -- n3/u3    subtract n1-n2
         HEADER  MINUS,1,'-',DOCODE
         MOV     @PSP+,W
         SUB     TOS,W
         MOV     W,TOS
         NEXT
 
-;C   AND    x1 x2 -- x3            logical AND
+;C AND    x1 x2 -- x3            logical AND
         HEADER  ANDD,3,'AND',DOCODE
         AND     @PSP+,TOS
         NEXT
 
-;C   OR     x1 x2 -- x3           logical OR
+;C OR     x1 x2 -- x3           logical OR
         HEADER  ORR,2,'OR',DOCODE
         BIS     @PSP+,TOS
         NEXT
 
-;C   XOR    x1 x2 -- x3            logical XOR
+;C XOR    x1 x2 -- x3            logical XOR
         HEADER  XORR,3,'XOR',DOCODE
         XOR     @PSP+,TOS
         NEXT
 
-;C   INVERT   x1 -- x2            bitwise inversion
+;C INVERT   x1 -- x2            bitwise inversion
         HEADER  INVERT,6,'INVERT',DOCODE
         XOR     #-1,TOS
         NEXT
 
-;C   NEGATE   x1 -- x2            two's complement
+;C NEGATE   x1 -- x2            two's complement
         HEADER  NEGATE,6,'NEGATE',DOCODE
         XOR     #-1,TOS
         ADD     #1,TOS
         NEXT
 
-;C   1+      n1/u1 -- n2/u2       add 1 to TOS
+;C 1+      n1/u1 -- n2/u2       add 1 to TOS
         HEADER  ONEPLUS,2,'1+',DOCODE
         ADD     #1,TOS
         NEXT
 
-;C   1-      n1/u1 -- n2/u2     subtract 1 from TOS
+;C 1-      n1/u1 -- n2/u2     subtract 1 from TOS
         HEADER  ONEMINUS,2,'1-',DOCODE
         SUB     #1,TOS
         NEXT
 
-;Z   ><      x1 -- x2         swap bytes (not ANSI)
+;Z ><      x1 -- x2         swap bytes (not ANSI)
         HEADER  SWAPBYTES,2,'><',DOCODE
         SWPB    TOS
         NEXT
 
-;C   2*      x1 -- x2         arithmetic left shift
+;C 2*      x1 -- x2         arithmetic left shift
         HEADER  TWOSTAR,2,'2*',DOCODE
         ADD     TOS,TOS
         NEXT
 
-;C   2/      x1 -- x2        arithmetic right shift
+;C 2/      x1 -- x2        arithmetic right shift
         HEADER  TWOSLASH,2,'2/',DOCODE
         RRA     TOS
         NEXT
 
-;C   LSHIFT  x1 u -- x2    logical L shift u places
+;C LSHIFT  x1 u -- x2    logical L shift u places
         HEADER  LSHIFT,6,'LSHIFT',DOCODE
         MOV     @PSP+,W
         AND     #1Fh,TOS        ; no need to shift more than 16
@@ -543,7 +543,7 @@ LSH_1:  ADD     W,W
 LSH_X:  MOV     W,TOS
         NEXT
 
-;C   RSHIFT  x1 u -- x2    logical R shift u places
+;C RSHIFT  x1 u -- x2    logical R shift u places
         HEADER  RSHIFT,6,'RSHIFT',DOCODE
         MOV     @PSP+,W
         AND     #1Fh,TOS        ; no need to shift more than 16
@@ -557,20 +557,20 @@ RSH_X:  MOV     W,TOS
 
 ; COMPARISON OPERATIONS --------------------------------------------------------
  
-;C   0=     n/u -- flag    return true if TOS=0
+;C 0=     n/u -- flag    return true if TOS=0
         HEADER ZEROEQUAL,2,'0=',DOCODE
         SUB     #1,TOS      ; borrow (clear cy) if TOS was 0
         SUBC    TOS,TOS     ; TOS=-1 if borrow was set
         NEXT
 
-;C   0<     n -- flag      true if TOS negative
+;C 0<     n -- flag      true if TOS negative
         HEADER ZEROLESS,2,'0<',DOCODE
         ADD     TOS,TOS     ; set cy if TOS negative
         SUBC    TOS,TOS     ; TOS=-1 if carry was clear
         XOR     #-1,TOS     ; TOS=-1 if carry was set
         NEXT
 
-;C   =      x1 x2 -- flag         test x1=x2
+;C =      x1 x2 -- flag         test x1=x2
         HEADER EQUAL,1,'=',DOCODE
         MOV     @PSP+,W
         SUB     TOS,W       ; x1-x2 in W, flags set
@@ -578,11 +578,11 @@ RSH_X:  MOV     W,TOS
 TOSFALSE: MOV   #0,TOS
         NEXT
 
-;X   <>     x1 x2 -- flag    test not eq (not ANSI)
+;X <>     x1 x2 -- flag    test not eq (not ANSI)
         HEADER NOTEQUAL,2,'<>',DOCOLON
         DW EQUAL,ZEROEQUAL,EXIT
 
-;C   <      n1 n2 -- flag        test n1<n2, signed
+;C <      n1 n2 -- flag        test n1<n2, signed
         HEADER LESS,1,'<',DOCODE
         MOV     @PSP+,W
         SUB     TOS,W       ; x1-x2 in W, flags set
@@ -590,22 +590,22 @@ TOSFALSE: MOV   #0,TOS
 TOSTRUE: MOV    #-1,TOS
         NEXT
 
-;C   >     n1 n2 -- flag         test n1>n2, signed
+;C >     n1 n2 -- flag         test n1>n2, signed
         HEADER GREATER,1,'>',DOCOLON
         DW SWAP,LESS,EXIT
 
-;C   U<    u1 u2 -- flag       test u1<u2, unsigned
+;C U<    u1 u2 -- flag       test u1<u2, unsigned
         HEADER ULESS,2,'U<',DOCODE
         MOV     @PSP+,W
         SUB     TOS,W       ; u1-u2 in W, cy clear if borrow
         JNC     TOSTRUE
         JMP     TOSFALSE
 
-;X   U>    u1 u2 -- flag     u1>u2 unsgd (not ANSI)
+;X U>    u1 u2 -- flag     u1>u2 unsgd (not ANSI)
         HEADER UGREATER,2,'U>',DOCOLON
         DW SWAP,ULESS,EXIT
         
-;C   RLA    n1 -- n2 f      rotate left through carry, true if carry set
+;C RLA    n1 -- n2 f      rotate left through carry, true if carry set
         HEADER  RLAA,3,'RLA',DOCODE
         RLA TOS         ; shift left 
         PUSH SR
@@ -621,12 +621,12 @@ TOSTRUE: MOV    #-1,TOS
  
 ; These use relative branch addresses: a branch is ADD @IP,IP
 
-;Z   BRANCH   --                  branch always
+;Z BRANCH   --                  branch always
         HEADER  bran,6,'BRANCH',DOCODE
 dobran:  ADD @IP,IP   ; 2
         NEXT            ; 4
 
-;Z   ?BRANCH   x --              branch if TOS zero
+;Z ?BRANCH   x --              branch if TOS zero
         HEADER  qbran,7,'?BRANCH',DOCODE
         ADD #0,TOS      ; 1  test TOS value
         MOV @PSP+,TOS   ; 2  pop new TOS value (doesn't change flags)
@@ -634,7 +634,7 @@ dobran:  ADD @IP,IP   ; 2
         ADD #2,IP       ; 1  else skip the branch destination
         NEXT            ; 4
 
-;Z   (do)    n1|u1 n2|u2 -- R: -- sys1 sys2           run-time code for DO
+;Z (do)    n1|u1 n2|u2 -- R: -- sys1 sys2           run-time code for DO
 ; '83 and ANSI standard loops terminate when the boundary of 
 ; limit-1 and limit is crossed, in either direction.  This can 
 ; be conveniently implemented by making the limit 8000h, so that
@@ -652,7 +652,7 @@ dobran:  ADD @IP,IP   ; 2
         MOV     @PSP+,TOS       ; pop new TOS
         NEXT
 
-;Z   (loop)   R: sys1 sys2 -- | sys1 sys2           run-time code for LOOP
+;Z (loop)   R: sys1 sys2 -- | sys1 sys2           run-time code for LOOP
 ; Add 1 to the loop index.  If loop terminates, clean up the 
 ; return stack and skip the branch.  Else take the inline branch.  
 ; Note that LOOP terminates when index=8000h.
@@ -665,7 +665,7 @@ dobran:  ADD @IP,IP   ; 2
         MOV     @RSP+,LIMIT
         NEXT
 
-;Z   (+loop)   n -- R: sys1 sys2 -- | sys1 sys2        run-time code for +LOOP
+;Z (+loop)   n -- R: sys1 sys2 -- | sys1 sys2        run-time code for +LOOP
 ; Add n to the loop index.  If loop terminates, clean up the 
 ; return stack and skip the branch. Else take the inline branch.
         HEADER  xplusloop,7,'(+loop)',DOCODE
@@ -678,7 +678,7 @@ dobran:  ADD @IP,IP   ; 2
         MOV     @RSP+,LIMIT
         NEXT
 
-;C   I        -- n R: sys1 sys2 -- sys1 sys2        get the innermost loop index
+;C I        -- n R: sys1 sys2 -- sys1 sys2        get the innermost loop index
         HEADER  II,1,'I',DOCODE
         SUB     #2,PSP          ; make room in TOS
         MOV     TOS,0(PSP)
@@ -686,7 +686,7 @@ dobran:  ADD @IP,IP   ; 2
         SUB     LIMIT,TOS
         NEXT
 
-;C   J        -- n R: 4*sys -- 4*sys                 get the second loop index
+;C J        -- n R: 4*sys -- 4*sys                 get the second loop index
         HEADER  JJ,1,'J',DOCODE
         SUB     #2,PSP          ; make room in TOS
         MOV     TOS,0(PSP)
@@ -694,7 +694,7 @@ dobran:  ADD @IP,IP   ; 2
         SUB     2(RSP),TOS
         NEXT
 
-;C   UNLOOP    -- R: sys1 sys2 --                    drop loop parms
+;C UNLOOP    -- R: sys1 sys2 --                    drop loop parms
         HEADER  UNLOOP,6,'UNLOOP',DOCODE
         MOV     @RSP+,INDEX     ; restore old loop values
         MOV     @RSP+,LIMIT
@@ -702,7 +702,7 @@ dobran:  ADD @IP,IP   ; 2
 
 ; MULTIPLY AND DIVIDE ----------------------------------------------------------
 
-;C   UM*     u1 u2 -- ud      unsigned 16x16->32 mult.
+;C UM*     u1 u2 -- ud      unsigned 16x16->32 mult.
         HEADER  UMSTAR,3,'UM*',DOCODE
         ; IROP1 = TOS register
         MOV     @PSP,IROP2L     ; get u1, leave room on stack
@@ -728,7 +728,7 @@ L$01:   RLA IROP2L  ; MULTIPLIER x 2
         MOV     IRACM,TOS       ; high result in TOS
         NEXT
 
-;C   UM/MOD   ud u1 -- u2 u3       unsigned 32/16->16
+;C UM/MOD   ud u1 -- u2 u3       unsigned 32/16->16
         HEADER  UMSLASHMOD,6,'UM/MOD',DOCODE
         ; IROP1 = TOS register
         MOV     @PSP+,IROP2M    ; get ud hi
@@ -761,7 +761,7 @@ DIV4:   ; Error indication in C
 
 ; BLOCK AND STRING OPERATIONS --------------------------------------------------
 
-;C   FILL   c-addr u char --      fill memory with char
+;C FILL   c-addr u char --      fill memory with char
         HEADER  FILL,4,'FILL',DOCODE
         MOV     @PSP+,X     ; count
         MOV     @PSP+,W     ; address
@@ -774,7 +774,7 @@ FILL_1: MOV.B   TOS,0(W)    ; store char in memory
 FILL_X: MOV     @PSP+,TOS   ; pop new TOS
         NEXT
 
-;X   CMOVE   c-addr1 c-addr2 u --     move from bottom
+;X CMOVE   c-addr1 c-addr2 u --     move from bottom
 ; as defined in the ANSI optional String word set
 ; On byte machines, CMOVE and CMOVE> are logical
 ; factors of MOVE.  They are easy to implement on
@@ -791,7 +791,7 @@ CMOVE_1: MOV.B  @X+,0(W)    ; copy byte
 CMOVE_X: MOV    @PSP+,TOS   ; pop new TOS
         NEXT
 
-;X   CMOVE>  c-addr1 c-addr2 u --     move from top
+;X CMOVE>  c-addr1 c-addr2 u --     move from top
 ; as defined in the ANSI optional String word set
         HEADER  CMOVEUP,6,'CMOVE>',DOCODE
         MOV     @PSP+,W     ; dest adrs
@@ -808,12 +808,12 @@ CMOVU_1: SUB    #1,X
 CMOVU_X: MOV    @PSP+,TOS   ; pop new TOS
         NEXT
 
-;Z   I->D     c-addr1 c-addr2 u --      move Code->Data
+;Z I->D     c-addr1 c-addr2 u --      move Code->Data
 ; Block move from Code space to Data space.
 ; On the MSP430, this is the same as CMOVE.
        HEADER  ITOD,4,'I->D',CMOVE+2
 
-;Z   SKIP   c-addr u c -- c-addr' u'                     skip matching chars
+;Z SKIP   c-addr u c -- c-addr' u'                     skip matching chars
 ; Although SKIP, SCAN, and S= are perhaps not the ideal factors 
 ; of WORD and FIND, they closely follow the string operations 
 ; available on many CPUs, and so are easy to implement and fast.
@@ -831,7 +831,7 @@ SKIP_X: MOV     W,0(PSP)    ; store updated address on stack
         MOV     X,TOS       ; updated count to TOS
         NEXT
 
-;Z   SCAN    c-addr u c -- c-addr' u'                     find matching char
+;Z SCAN    c-addr u c -- c-addr' u'                     find matching char
         HEADER  SCAN,4,'SCAN',DOCODE
         MOV     @PSP+,X     ; get count
         MOV     @PSP,W      ; get address, leave space on stack
@@ -846,7 +846,7 @@ SCAN_X: MOV     W,0(PSP)    ; store updated address on stack
         MOV     X,TOS       ; updated count to TOS
         NEXT
 
-;Z   S=    c-addr1 c-addr2 u -- n   string compare, n<0: s1<s2, n=0: s1=s2, n>0: s1>s2
+;Z S=    c-addr1 c-addr2 u -- n   string compare, n<0: s1<s2, n=0: s1=s2, n>0: s1>s2
         HEADER  SEQUAL,2,'S=',DOCODE
         MOV     @PSP+,W     ; adrs2
         MOV     @PSP+,X     ; adrs1
@@ -865,23 +865,23 @@ SMISMATCH: SUBC TOS,TOS     ; TOS=-1 if borrow was set
         ADD     #1,TOS      ; TOS=-1 or +1
 SEQU_X: NEXT                ; return result in TOS
 
-;Z   N=    c-addr1 c-addr2 u -- n       name compare, n<0: s1<s2, n=0: s1=s2, n>0: s1>s2
+;Z N=    c-addr1 c-addr2 u -- n       name compare, n<0: s1<s2, n=0: s1=s2, n>0: s1>s2
 ; For Harvard model, c-addr1 is Data, c-addr2 is Header.
 ; On MSP430, both use the same fetch instruction, so N= is the same as S=.
         HEADER  NEQUAL,2,'N=',SEQUAL+2
 
 ; input and output -------------------------------------------------------------
 
-;C   KEY      -- c      get character from keyboard; vectored
+;C KEY      -- c      get character from keyboard; vectored
         HEADER  KEY,3,'KEY',DOCOLON
           DW USERKEY,FETCH,EXECUTE,EXIT
 
-;C   EMIT       c --    output character to console; vectored
+;C EMIT       c --    output character to console; vectored
         HEADER  EMIT,4,'EMIT',DOCOLON
           DW USEREMIT,FETCH,EXECUTE,EXIT
 
 
-;X   KEY?     -- f    return true if char waiting
+;X KEY?     -- f    return true if char waiting
         HEADER  KEYQ,4,'KEY?',DOCODE
         SUB     #2,PSP          ; 1  push old TOS..
         MOV     TOS,0(PSP)      ; 4  ..onto stack
@@ -891,7 +891,7 @@ SEQU_X: NEXT                ; return result in TOS
 
 ; miscellaneous ----------------------------------------------------------------
 
-;X   ZERO     -- 0      put zero on stack. Often usesd word.
+;X ZERO     -- 0      put zero on stack. Often usesd word.
         HEADER  ZERO,4,'ZERO',DOCON
           DW 0
           

@@ -734,11 +734,11 @@
         <debug>1</debug>
         <option>
           <name>XOutOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OutputFile</name>
-          <state>4e4th-eZ430.a43</state>
+          <state>4e4th-eZ430.hex</state>
         </option>
         <option>
           <name>OutputFormat</name>
@@ -928,7 +928,7 @@
         </option>
         <option>
           <name>XExtraOutOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>ExtraOutputFile</name>

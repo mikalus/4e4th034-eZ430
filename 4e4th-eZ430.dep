@@ -2,7 +2,7 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3998717275</fileChecksum>
+  <fileChecksum>3362434947</fileChecksum>
   <configuration>
     <name>Debug</name>
     <outputs>
@@ -15,6 +15,7 @@
       <file>$PROJ_DIR$\4e-init430F2274.s43</file>
       <file>$PROJ_DIR$\4e-vecs430F2274.s43</file>
       <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
+      <file>$PROJ_DIR$\..\4e4th034 - snapshot\4e-boot.s43</file>
       <file>$PROJ_DIR$\Debug\Obj\4e-infoD.r43</file>
       <file>$PROJ_DIR$\4e-deps430F2274.s43</file>
       <file>$PROJ_DIR$\4e-lnk430f2274.xcl</file>
@@ -39,19 +40,20 @@
       <file>$PROJ_DIR$\Debug\List\4e-eZ430.lst</file>
       <file>$PROJ_DIR$\4e-hilvl430.s43</file>
       <file>$PROJ_DIR$\Debug\Obj\4e-eZ430.r43</file>
+      <file>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.hex</file>
     </outputs>
     <file>
       <name>$PROJ_DIR$\4e-infoB.s43</name>
       <outputs>
         <tool>
           <name>A430</name>
-          <file> 14 0</file>
+          <file> 15 0</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>A430</name>
-          <file> 1 18 28</file>
+          <file> 1 19 29</file>
         </tool>
       </inputs>
     </file>
@@ -60,13 +62,13 @@
       <outputs>
         <tool>
           <name>A430</name>
-          <file> 32 30</file>
+          <file> 33 31</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>A430</name>
-          <file> 1 18 20 10 16 31 29</file>
+          <file> 1 19 21 11 17 32 30</file>
         </tool>
       </inputs>
     </file>
@@ -75,13 +77,13 @@
       <outputs>
         <tool>
           <name>A430</name>
-          <file> 15 23</file>
+          <file> 16 24</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>A430</name>
-          <file> 1 18 28</file>
+          <file> 1 19 29</file>
         </tool>
       </inputs>
     </file>
@@ -90,13 +92,13 @@
       <outputs>
         <tool>
           <name>A430</name>
-          <file> 9 27</file>
+          <file> 10 28</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>A430</name>
-          <file> 1 18 28</file>
+          <file> 1 19 29</file>
         </tool>
       </inputs>
     </file>
@@ -105,13 +107,13 @@
       <outputs>
         <tool>
           <name>A430</name>
-          <file> 19 24</file>
+          <file> 20 25</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>A430</name>
-          <file> 18 20</file>
+          <file> 19 21</file>
         </tool>
       </inputs>
     </file>
@@ -120,7 +122,7 @@
       <outputs>
         <tool>
           <name>A430</name>
-          <file> 21 12</file>
+          <file> 22 13</file>
         </tool>
       </outputs>
     </file>
@@ -129,7 +131,7 @@
       <outputs>
         <tool>
           <name>XLINK</name>
-          <file> 25 13</file>
+          <file> 34 14</file>
         </tool>
       </outputs>
     </file>
@@ -144,16 +146,25 @@
     </file>
     <file>
       <name>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.a43</name>
+      <inputs>
+        <tool>
+          <name>XLINK</name>
+          <file> 12 33 15 16 10 20 22</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.hex</name>
       <outputs>
         <tool>
           <name>XLINK</name>
-          <file> 13</file>
+          <file> 14</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 11 32 14 15 9 19 21</file>
+          <file> 12 33 15 16 10 20 22</file>
         </tool>
       </inputs>
     </file>
