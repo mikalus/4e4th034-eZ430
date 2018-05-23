@@ -3,10 +3,10 @@
 4e4th and application will run ON this chip.
 
 Based on 4e4th Release 0.34 for the TI MSP430G2553 Value Line LaunchPad Develpoment Tool (MSP-EXP430G2), Rev. 1.5 chip.  
-Based on CamelForth MSP430 V0.3 that Bard Rodriguez has created for the MSP430F1611. 
+Based on CamelForth MSP430 V0.3 that Brad Rodriguez has created for the MSP430F1611. 
 
 ## Assembling 4e4th
-The project has been created using IAR Kickstart. Add it to IAR Kickstart as exsiting project. 
+The project has been created using IAR Kickstart. Add it to IAR Kickstart as exisiting project. 
 
 The free version of IAR can only program projects up to 4K. If the file is larger, you can use a BSL scripter tool like the FET-Pro430 Flash Programmer by Elprotronic. To be able to use an external scripter tool, **IAR must be configured** to output the file in Intel Hex Format. Select project options, Linker output, check "Override default" an enter 4e4th-eZ430.hex as output filename. And select "other output format = intel extended". This will create an image file using Intel Hex format in the folder Debug/Exe, which can be programmed into the MCU using the FET-Pro430 tool. 
 
