@@ -6,141 +6,45 @@
   <configuration>
     <name>Debug</name>
     <outputs>
-      <file>$PROJ_DIR$\Debug\List\4e-infoB.lst</file>
-      <file>$TOOLKIT_DIR$\inc\msp430.h</file>
-      <file>$PROJ_DIR$\4e-infoB.s43</file>
-      <file>$PROJ_DIR$\4e-eZ430.s43</file>
+      <file>$PROJ_DIR$\4e-CF430F2274forth.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-vecs430F2274.r43</file>
+      <file>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.a43</file>
+      <file>$PROJ_DIR$\Debug\List\4e-infoD.lst</file>
       <file>$PROJ_DIR$\4e-infoC.s43</file>
+      <file>$PROJ_DIR$\4e-eZ430.s43</file>
+      <file>$PROJ_DIR$\4e-infoB.s43</file>
       <file>$PROJ_DIR$\4e-infoD.s43</file>
       <file>$PROJ_DIR$\4e-init430F2274.s43</file>
       <file>$PROJ_DIR$\4e-vecs430F2274.s43</file>
-      <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
-      <file>$PROJ_DIR$\..\4e4th034 - snapshot\4e-boot.s43</file>
-      <file>$PROJ_DIR$\Debug\Obj\4e-infoD.r43</file>
-      <file>$PROJ_DIR$\4e-deps430F2274.s43</file>
-      <file>$PROJ_DIR$\4e-lnk430f2274.xcl</file>
-      <file>$PROJ_DIR$\Debug\List\4e-vecs430F2274.lst</file>
-      <file>$PROJ_DIR$\Debug\List\4e4th-eZ430.map</file>
+      <file>$PROJ_DIR$\4e-CF430G2553forth.h</file>
+      <file>$PROJ_DIR$\4e-boot-eZ430.s43</file>
+      <file>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.hex</file>
       <file>$PROJ_DIR$\Debug\Obj\4e-infoB.r43</file>
+      <file>$PROJ_DIR$\Debug\List\4e4th-eZ430.map</file>
+      <file>$PROJ_DIR$\Debug\List\4e-init430F2274.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-eZ430.r43</file>
+      <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
+      <file>$PROJ_DIR$\Debug\List\4e-eZ430.lst</file>
+      <file>$PROJ_DIR$\Debug\List\4e-infoC.lst</file>
+      <file>$PROJ_DIR$\4e-lnk430f2274.xcl</file>
+      <file>$PROJ_DIR$\4e-hilvl430.s43</file>
+      <file>$PROJ_DIR$\Debug\List\4e-vecs430F2274.lst</file>
+      <file>$PROJ_DIR$\4e-deps430F2274.s43</file>
+      <file>$TOOLKIT_DIR$\inc\msp430.h</file>
+      <file>$PROJ_DIR$\Debug\List\4e-infoB.lst</file>
+      <file>$PROJ_DIR$\Debug\Obj\4e-infoD.r43</file>
       <file>$PROJ_DIR$\Debug\Obj\4e-infoC.r43</file>
       <file>$PROJ_DIR$\4e-core430.s43</file>
       <file>$PROJ_DIR$\asm.s43</file>
       <file>$TOOLKIT_DIR$\inc\msp430f2274.h</file>
       <file>$PROJ_DIR$\Debug\Obj\4e-init430F2274.r43</file>
-      <file>$PROJ_DIR$\4e-CF430F2274forth.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\4e-vecs430F2274.r43</file>
-      <file>$PROJ_DIR$\4e-vecarea.s43</file>
-      <file>$PROJ_DIR$\Debug\List\4e-infoC.lst</file>
-      <file>$PROJ_DIR$\Debug\List\4e-init430F2274.lst</file>
-      <file>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.a43</file>
-      <file>$PROJ_DIR$\4e-eZ430-RF2500.s43</file>
-      <file>$PROJ_DIR$\Debug\List\4e-infoD.lst</file>
-      <file>$PROJ_DIR$\4e-CF430G2553forth.h</file>
-      <file>$PROJ_DIR$\4e-boot-eZ430.s43</file>
-      <file>$PROJ_DIR$\Debug\List\4e-eZ430.lst</file>
-      <file>$PROJ_DIR$\4e-hilvl430.s43</file>
-      <file>$PROJ_DIR$\Debug\Obj\4e-eZ430.r43</file>
-      <file>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.hex</file>
     </outputs>
-    <file>
-      <name>$PROJ_DIR$\4e-infoB.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 15 0</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>A430</name>
-          <file> 1 19 29</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\4e-eZ430.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 33 31</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>A430</name>
-          <file> 1 19 21 11 17 32 30</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\4e-infoC.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 16 24</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>A430</name>
-          <file> 1 19 29</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\4e-infoD.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 10 28</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>A430</name>
-          <file> 1 19 29</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\4e-init430F2274.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 20 25</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>A430</name>
-          <file> 19 21</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\4e-vecs430F2274.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 22 13</file>
-        </tool>
-      </outputs>
-    </file>
     <file>
       <name>[ROOT_NODE]</name>
       <outputs>
         <tool>
           <name>XLINK</name>
-          <file> 34 14</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\asm.s43</name>
-      <outputs>
-        <tool>
-          <name>A430</name>
-          <file> 8</file>
+          <file> 12 14</file>
         </tool>
       </outputs>
     </file>
@@ -149,9 +53,93 @@
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 12 33 15 16 10 20 22</file>
+          <file> 20 16 13 27 26 31 1</file>
         </tool>
       </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-infoC.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 27 19</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 24 30 10</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-eZ430.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 16 18</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 24 30 0 23 28 21 11</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-infoB.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 13 25</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 24 30 10</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-infoD.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 26 3</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 24 30 10</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-init430F2274.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 31 15</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>A430</name>
+          <file> 30 0</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\4e-vecs430F2274.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 1 22</file>
+        </tool>
+      </outputs>
     </file>
     <file>
       <name>$PROJ_DIR$\Debug\Exe\4e4th-eZ430.hex</name>
@@ -164,9 +152,18 @@
       <inputs>
         <tool>
           <name>XLINK</name>
-          <file> 12 33 15 16 10 20 22</file>
+          <file> 20 16 13 27 26 31 1</file>
         </tool>
       </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\asm.s43</name>
+      <outputs>
+        <tool>
+          <name>A430</name>
+          <file> 17</file>
+        </tool>
+      </outputs>
     </file>
   </configuration>
   <configuration>
